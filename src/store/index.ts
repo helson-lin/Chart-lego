@@ -1,14 +1,15 @@
-import { createStore } from 'vuex'
-import user, {  UserStoreProps } from './user'
-
-
+import { createStore } from "vuex"
+import user, { UserStoreProps } from "./user"
+import editor, { EditorStoreProps } from "./editor"
 export interface GloablDataProps {
-    user: UserStoreProps,
+	user: UserStoreProps
+	editor: EditorStoreProps
 }
 const store = createStore({
-    modules: {
-        user,
-    },
+	modules: {
+		user,
+		editor,
+	},
 })
 
 export default store
