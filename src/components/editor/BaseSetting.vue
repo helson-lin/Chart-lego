@@ -7,7 +7,8 @@
 					<div class="option-value">
 						<a-input
 							v-model:value="editorSetting.width"
-							placeholder="Basic usage"
+							type="number"
+							placeholder="宽度"
 						/>
 					</div>
 				</div>
@@ -16,7 +17,8 @@
 					<div class="option-value">
 						<a-input
 							v-model:value="editorSetting.height"
-							placeholder="Basic usage"
+							type="number"
+							placeholder="高度"
 						/>
 					</div>
 				</div>
@@ -34,7 +36,7 @@
 								v-model:fileList="fileList"
 								name="file"
 								:multiple="true"
-								action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+								action="/file/upload"
 								@change="handleChange"
 								@drop="handleDrop"
 							>
@@ -64,8 +66,12 @@ const editorSetting = computed<EditorStyleProps>(() => {
 	return store.state.editor.style
 })
 const fileList = ref([])
-const handleChange = () => {}
-const handleDrop = () => {}
+const handleChange = ({ file }) => {
+	console.log(file, "文件上传", "handleChange")
+}
+const handleDrop = (e) => {
+	console.log(e, "文件上传12", "handleDrop")
+}
 </script>
 <style lang="scss" scoped>
 .base-setting {
@@ -90,6 +96,11 @@ const handleDrop = () => {}
 	align-items: center;
 	&.upload {
 		margin-top: 40px;
+
+		.ant-upload-text {
+			font-size: 12px;
+			margin-top: -10px;
+		}
 	}
 	.option-label {
 		font-size: 14px;

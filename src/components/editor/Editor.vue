@@ -1,6 +1,7 @@
 <template>
 	<div class="editor-core" id="h-ed" :style="editorStyle">
-		<div
+		<div id="demo1322" style="height: 400px"></div>
+		<!-- <div
 			:class="['h-dragable']"
 			:style="chart.style"
 			id="dragable"
@@ -8,13 +9,22 @@
 			:key="chart.id"
 		>
 			<iframe :src="chart.url" frameborder="0"></iframe>
-		</div>
+		</div> -->
 	</div>
 </template>
 <script lang="ts" setup>
-import { onMounted, computed } from "vue"
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import {
+	onMounted,
+	computed,
+	getCurrentInstance,
+	ScriptHTMLAttributes,
+} from "vue"
 import Moveable from "moveable"
+import Chart, { ChartOptionsProps } from "@/lib/chart"
+import renderFuc12 from "@/lib/chart-component/demo12234"
 import { useStore } from "vuex"
+import axios from "axios"
 export interface ListItemProps {
 	id: string
 	url: string
@@ -26,6 +36,8 @@ export interface EditorStyleProps {
 	imgUrl?: string
 	customImgBack: boolean
 }
+const instance = getCurrentInstance()
+const { $axios } = instance?.appContext.config.globalProperties
 let targetElement: HTMLElement, moveable: Moveable
 const store = useStore()
 const editorSettingStyle = computed<EditorStyleProps>(() => {
@@ -158,7 +170,41 @@ const dragDivListener = () => {
 		i += 1
 	} while (i < dragLen)
 }
-onMounted(() => {
+const getDemo = async () => {
+	const script = document.createElement("script")
+	script.src = "https://pic.kblue.site/img/demo122.js"
+	const res = await axios.request({
+		url: "https://pic.kblue.site/img/demo12234.js",
+		method: "GET",
+	})
+	// eslint-disable-next-line @typescript-eslint/no-var-requires
+	// import { func } from "https://pic.kblue.site/img/demo122.js"
+	// const func = require("https://pic.kblue.site/img/demo122.js")
+	return res.data
+}
+const initChart = (renderFuc: Function) => {
+	console.log("getOptions", renderFuc)
+	const demo: ChartOptionsProps = {
+		id: "demo1322",
+		name: "demo123",
+		styleOption: {
+			width: 400,
+			height: 300,
+		},
+		apiOption: {
+			isRefresh: false,
+			url: "",
+			timer: 0,
+		},
+		renderFuc: renderFuc,
+	}
+	const chart = new Chart(demo, true)
+	console.log(chart, "looo")
+}
+onMounted(async () => {
+	instance?.proxy?.$nextTick(() => {
+		initChart(renderFuc12.renderFuc)
+	})
 	dragDivListener()
 })
 </script>
@@ -176,7 +222,6 @@ onMounted(() => {
 	position: absolute;
 	width: 400px;
 	height: 300px;
-	background: #fff;
 }
 .class2 {
 	top: 420px;

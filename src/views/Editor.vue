@@ -27,7 +27,7 @@
 </template>
 <script lang="ts">
 import { LeftCircleFilled, RightCircleFilled } from "@ant-design/icons-vue"
-import Editor, { EditorStyleProps } from "../components/editor/Editor.vue"
+import Editor from "../components/editor/Editor.vue"
 import BaseSetting from "../components/editor/BaseSetting.vue"
 import { ref } from "vue"
 export default {
@@ -41,13 +41,6 @@ export default {
 				className: "class2",
 			},
 		])
-		const editorStyle = ref<EditorStyleProps>({
-			width: 500,
-			height: 600,
-			background: "#f2f2f2",
-			imgUrl: "https:/pic.kblue.site/pexels-photo-1126384.jpeg",
-			customImgBack: true,
-		})
 		const isOpenToolBar = ref(true)
 		const isOpenMenuBar = ref(true)
 		const closeOrOpenTool = () => {
@@ -58,7 +51,6 @@ export default {
 		}
 		return {
 			defaultList,
-			editorStyle,
 			isOpenToolBar,
 			isOpenMenuBar,
 			closeOrOpenTool,

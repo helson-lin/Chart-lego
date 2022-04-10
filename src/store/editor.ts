@@ -24,8 +24,13 @@ const componentDemo: SingleChartProps[] = [
 	{ id: uuidv4(), url: "https://sogou.com", style: "top: 0;left: 0;" },
 	{
 		id: uuidv4(),
-		url: "https://www.xhling.com/post-398.html",
+		url: "http://player.helson-lin.cn/chart/%E4%BB%AA%E8%A1%A8%E7%9B%98/index.html",
 		style: "top: 420px;left: 20px;",
+	},
+	{
+		id: uuidv4(),
+		url: "http://player.helson-lin.cn/chart/%E7%8E%AF%E5%BD%A2%E5%9B%BE/index.html",
+		style: "top: 420px;left: 400px;",
 	},
 ]
 export const testComponents: EditorStoreProps = {
@@ -35,9 +40,9 @@ export const testComponents: EditorStoreProps = {
 	style: {
 		width: 1920,
 		height: 1080,
-		background: "#f2f2f2",
-		imgUrl: "https:/pic.kblue.site/pexels-photo-1126384.jpeg",
-		customImgBack: true,
+		background: "#020b3b",
+		imgUrl: "",
+		customImgBack: false,
 	},
 	component: componentDemo,
 }
