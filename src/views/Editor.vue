@@ -26,13 +26,20 @@
 	</div>
 </template>
 <script lang="ts">
-import { LeftCircleFilled, RightCircleFilled } from "@ant-design/icons-vue"
-import Editor from "../components/editor/Editor.vue"
-import BaseSetting from "../components/editor/BaseSetting.vue"
-import { ref } from "vue"
+import { LeftCircleFilled, RightCircleFilled } from "@ant-design/icons-vue";
+import Editor from "../components/editor/Editor.vue";
+import BaseSetting from "../components/editor/BaseSetting.vue";
+import { getAllChart } from "@/interface/chart";
+import formatterChartOption, {
+	ApiChartOption,
+} from "@/utils/formatterChartOption";
+import { onMounted, ref } from "vue";
+import { useStore } from "vuex";
+import { Item } from "node_modules/ant-design-vue/lib/menu";
 export default {
 	components: { BaseSetting, Editor, LeftCircleFilled, RightCircleFilled },
 	setup() {
+		const store = useStore();
 		const defaultList = ref([
 			{ id: "1", url: "https://sogou.com", className: "class1" },
 			{
@@ -40,24 +47,37 @@ export default {
 				url: "https://www.xhling.com/post-398.html",
 				className: "class2",
 			},
-		])
-		const isOpenToolBar = ref(true)
-		const isOpenMenuBar = ref(true)
+		]);
+		const isOpenToolBar = ref(true);
+		const isOpenMenuBar = ref(true);
+		const getChartList = async () => {
+			const res = await getAllChart();
+			if (res.data && res.data.code === 0) {
+				const chartList = res.data.data.rows.map((Item: ApiChartOption) =>
+					formatterChartOption.formatterChartOption(Item)
+				);
+				store.commit("editor/setComponent", chartList);
+				console.log(chartList);
+			}
+		};
 		const closeOrOpenTool = () => {
-			isOpenToolBar.value = !isOpenToolBar.value
-		}
+			isOpenToolBar.value = !isOpenToolBar.value;
+		};
 		const closeOrOpenMenu = () => {
-			isOpenMenuBar.value = !isOpenMenuBar.value
-		}
+			isOpenMenuBar.value = !isOpenMenuBar.value;
+		};
+		onMounted(() => {
+			getChartList();
+		});
 		return {
 			defaultList,
 			isOpenToolBar,
 			isOpenMenuBar,
 			closeOrOpenTool,
 			closeOrOpenMenu,
-		}
+		};
 	},
-}
+};
 </script>
 <style lang="scss" scoped>
 .editor {

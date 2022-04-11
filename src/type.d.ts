@@ -1,8 +1,8 @@
-import { ECharts } from "echarts"
-import { ComponentPublicInstance } from "vue"
+import { ComponentPublicInstance } from "vue";
 declare global {
 	interface Window {
-		$vm: ComponentPublicInstance
-		$echarts: echarts
+		$vm: ComponentPublicInstance;
+		$echarts: echarts;
 	}
 }
+// declare module "codemirror"

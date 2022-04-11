@@ -1,38 +1,26 @@
-import { Module } from "vuex"
-import { GloablDataProps } from "./index"
-import { v4 as uuidv4 } from "uuid"
+import { Module } from "vuex";
+import { ChartOptionsProps } from "@/lib/chart/index";
+import { GloablDataProps } from "./index";
+import { v4 as uuidv4 } from "uuid";
 export interface SingleChartProps {
-	id: string
-	url: string
-	style: string
+	id: string;
+	url: string;
+	style: string;
 }
 export interface EditorStoreProps {
-	props: { [key: string]: string }
-	id: string
-	name: string
-	style: EditorStyleProps
-	component: SingleChartProps[] | null
+	props: { [key: string]: string };
+	id: string;
+	name: string;
+	style: EditorStyleProps;
+	component: ChartOptionsProps[] | null;
 }
 export interface EditorStyleProps {
-	width: number
-	height: number
-	background?: string
-	imgUrl?: string
-	customImgBack: boolean
+	width: number;
+	height: number;
+	background?: string;
+	imgUrl?: string;
+	customImgBack: boolean;
 }
-const componentDemo: SingleChartProps[] = [
-	{ id: uuidv4(), url: "https://sogou.com", style: "top: 0;left: 0;" },
-	{
-		id: uuidv4(),
-		url: "http://player.helson-lin.cn/chart/%E4%BB%AA%E8%A1%A8%E7%9B%98/index.html",
-		style: "top: 420px;left: 20px;",
-	},
-	{
-		id: uuidv4(),
-		url: "http://player.helson-lin.cn/chart/%E7%8E%AF%E5%BD%A2%E5%9B%BE/index.html",
-		style: "top: 420px;left: 400px;",
-	},
-]
 export const testComponents: EditorStoreProps = {
 	id: uuidv4(),
 	name: "EDitor",
@@ -44,12 +32,17 @@ export const testComponents: EditorStoreProps = {
 		imgUrl: "",
 		customImgBack: false,
 	},
-	component: componentDemo,
-}
+	component: null,
+};
 const editor: Module<EditorStoreProps, GloablDataProps> = {
+	namespaced: true,
 	state: testComponents,
 	getters: {},
-	mutations: {},
-}
+	mutations: {
+		setComponent: (state, list) => {
+			state.component = list;
+		},
+	},
+};
 
-export default editor
+export default editor;

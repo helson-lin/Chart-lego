@@ -1,7 +1,8 @@
-import { createRouter, createWebHistory } from "vue-router"
-import Home from "../views/Home.vue"
-import Editor from "../views/Editor.vue"
-import Template from "../views/Template.vue"
+import { createRouter, createWebHistory } from "vue-router";
+import Home from "../views/Home.vue";
+import Editor from "../views/Editor.vue";
+import CodeEditor from "../views/ChartEditor.vue";
+import Template from "../views/Template.vue";
 const routes = [
 	{
 		path: "/",
@@ -18,9 +19,14 @@ const routes = [
 		name: "Editor",
 		component: Editor,
 	},
-]
+	{
+		path: "/chartCode",
+		name: "ChartCode",
+		component: CodeEditor,
+	},
+];
 const router = createRouter({
 	routes,
 	history: createWebHistory(),
-})
-export default router
+});
+export default router;

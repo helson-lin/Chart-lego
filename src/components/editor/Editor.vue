@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/camelcase */
 <template>
 	<div class="editor-core" id="h-ed" :style="editorStyle">
 		<div id="demo1322" style="height: 400px"></div>
@@ -23,6 +24,7 @@ import {
 import Moveable from "moveable"
 import Chart, { ChartOptionsProps } from "@/lib/chart"
 import renderFuc12 from "@/lib/chart-component/demo12234"
+import { getArticle, addChart } from "@/interface/chart"
 import { useStore } from "vuex"
 import axios from "axios"
 export interface ListItemProps {
@@ -171,16 +173,38 @@ const dragDivListener = () => {
 	} while (i < dragLen)
 }
 const getDemo = async () => {
-	const script = document.createElement("script")
-	script.src = "https://pic.kblue.site/img/demo122.js"
-	const res = await axios.request({
-		url: "https://pic.kblue.site/img/demo12234.js",
-		method: "GET",
-	})
+	const res = await getArticle()
 	// eslint-disable-next-line @typescript-eslint/no-var-requires
 	// import { func } from "https://pic.kblue.site/img/demo122.js"
 	// const func = require("https://pic.kblue.site/img/demo122.js")
-	return res.data
+	return res.data.data.handler
+}
+const postChart = async () => {
+	// eslint-disable-next-line @typescript-eslint/camelcase
+	const api_option = {
+		url: "",
+		timer: 0,
+		isRefresh: false,
+	}
+	const styleOption = {
+		width: 400,
+		height: 500,
+		background: "#f2f2f2",
+		themeColor: "#333",
+		left: 200,
+		top: 100,
+	}
+	const data = {
+		name: Math.random().toFixed(4),
+		// eslint-disable-next-line @typescript-eslint/camelcase
+		author_uid: "3231231dswdzxwdsadqwdscsqe123awq",
+		// eslint-disable-next-line @typescript-eslint/camelcase
+		api_option: JSON.stringify(api_option),
+		// eslint-disable-next-line @typescript-eslint/camelcase
+		style_option: JSON.stringify(styleOption),
+		handler: JSON.stringify(renderFuc12),
+	}
+	const res = await addChart(data)
 }
 const initChart = (renderFuc: Function) => {
 	console.log("getOptions", renderFuc)
@@ -202,6 +226,11 @@ const initChart = (renderFuc: Function) => {
 	console.log(chart, "looo")
 }
 onMounted(async () => {
+	const handler = await getDemo()
+	console.log("handlerFunc122", handler)
+	const handlerFunc = eval("(" + handler + ")")
+	console.log("handlerFunc", handlerFunc)
+	await postChart()
 	instance?.proxy?.$nextTick(() => {
 		initChart(renderFuc12.renderFuc)
 	})

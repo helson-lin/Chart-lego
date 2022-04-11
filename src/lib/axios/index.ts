@@ -18,6 +18,7 @@ class HttpRequest {
 	constructor(baseUrl: string) {
 		this.baseUrl = baseUrl
 		this.queue = {}
+		console.log(this.baseUrl)
 	}
 	getInsideConfig(): ConfigProps {
 		const config = {
@@ -76,7 +77,7 @@ class HttpRequest {
 	}
 	request(options: AxiosRequestConfig) {
 		if (!options.url) console.warn("Axios： url can't be blank")
-		const instance = axios.create()
+		const instance = axios.create({ baseURL: this.baseUrl })
 		options = Object.assign(this.getInsideConfig(), options)
 		this.interceptors(instance, options.url || "")
 		return instance(options)
