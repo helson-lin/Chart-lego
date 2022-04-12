@@ -14,7 +14,7 @@ module.exports = {
 		ecmaVersion: 2020,
 	},
 	rules: {
-		"prettier/prettier": "error",
+		"prettier/prettier": "warn",
 		"arrow-body-style": "off",
 		"prefer-arrow-callback": "off",
 		"no-console": process.env.NODE_ENV === "production" ? "warn" : "off",

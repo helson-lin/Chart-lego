@@ -28,7 +28,7 @@ export const testComponents: EditorStoreProps = {
 	style: {
 		width: 1920,
 		height: 1080,
-		background: "#020b3b",
+		background: "rgba(4, 24, 130, 0.5)",
 		imgUrl: "",
 		customImgBack: false,
 	},

@@ -54,24 +54,45 @@
 				</div>
 			</a-collapse-panel>
 		</a-collapse>
+		<div class="btns">
+			<a-button type="primary" @click="getLoction">获取定位</a-button>
+		</div>
 	</div>
 </template>
 <script lang="ts" setup>
-import { useStore } from "vuex"
-import { computed, ref } from "vue"
-import { EditorStyleProps } from "./Editor.vue"
-const activeKey = ref(0)
-const store = useStore()
+import { useStore } from "vuex";
+import { computed, ref } from "vue";
+import { EditorStyleProps } from "./Editor.vue";
+const activeKey = ref(0);
+const store = useStore();
 const editorSetting = computed<EditorStyleProps>(() => {
-	return store.state.editor.style
-})
-const fileList = ref([])
+	return store.state.editor.style;
+});
+const fileList = ref([]);
 const handleChange = ({ file }) => {
-	console.log(file, "文件上传", "handleChange")
-}
+	console.log(file, "文件上传", "handleChange");
+};
 const handleDrop = (e) => {
-	console.log(e, "文件上传12", "handleDrop")
-}
+	console.log(e, "文件上传12", "handleDrop");
+};
+const getLoction = () => {
+	const componentBox: HTMLElement | null = document.getElementById("h-ed");
+	if (!componentBox) return;
+	const componentList = componentBox.children;
+	const componentListPos = [];
+	for (let i = 0; i < componentList.length - 1; i++) {
+		const { id } = componentList[i];
+		const { left, top, width, height } = getComputedStyle(componentList[i]);
+		componentListPos.push({
+			id,
+			left: Number(left.replace("px", "")),
+			top: Number(top.replace("px", "")),
+			width: Number(width.replace("px", "")),
+			height: Number(height.replace("px", "")),
+		});
+	}
+	console.log("定位", "handleDrop", componentListPos);
+};
 </script>
 <style lang="scss" scoped>
 .base-setting {
@@ -87,6 +108,14 @@ const handleDrop = (e) => {
 			border-bottom: 1px solid #eee;
 			box-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.1);
 		}
+	}
+
+	.btns {
+		width: 100%;
+		height: 60px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
 	}
 }
 .option-item {

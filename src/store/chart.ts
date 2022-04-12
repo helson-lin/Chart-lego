@@ -14,6 +14,11 @@ const chart: Module<ChartStoreProps, GloablDataProps> = {
 		setChart(state, chart: ChartOptionsProps) {
 			state.chart = chart;
 		},
+		setRenderFunc(state, renderFunc: Function) {
+			if (!state.chart) return;
+			console.log('更新')
+			state.chart.renderFuc = renderFunc;
+		}
 	},
 };
 

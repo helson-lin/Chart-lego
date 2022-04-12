@@ -24,7 +24,7 @@ export interface ChartOptionsProps {
 	renderFuc: Function; // 渲染的一个函数
 }
 import { ECharts, EChartsOption } from "echarts";
-import HttpRequest from "@/lib/axios/index";
+
 class Chart {
 	private id: string;
 	private name: string;
@@ -34,7 +34,6 @@ class Chart {
 	private apiOption: ApiOptionProps<true>;
 	private renderFuc: Function;
 	private _options: EChartsOption | null = null;
-	private apiData: string | null = null;
 	public isDeugger = false;
 	constructor(initOptions: ChartOptionsProps, isDeugger: boolean) {
 		const { id, name, styleOption, apiOption, renderFuc } = initOptions;
@@ -42,7 +41,6 @@ class Chart {
 		this.name = name;
 		this.styleOption = styleOption;
 		this.apiOption = apiOption;
-		if (this.apiOption.url) this.getApiData();
 		this.isDeugger = isDeugger || false;
 		if (typeof renderFuc !== "function") this.throwError("渲染函数不是函数");
 		this.renderFuc = renderFuc;
@@ -53,50 +51,29 @@ class Chart {
 		console.log(this.id);
 		if (!this.id) this.throwError("当前图表id不存在, 无法挂载");
 		const el = window.document.getElementById(this.id);
-		if (!el) {
-			this.throwError("当前图表id不存在, 无法挂载");
-			return;
-		}
+		if (!el) this.throwError("当前图表id不存在, 无法挂载");
 		this.log(`获取Dom: ${el}`);
 		this.$el = el;
-		this.vm = window.echarts.init(this.$el);
+		this._options = await this.renderFuc.bind(this)();
 		console.log(this);
 		this.render();
 	}
-	async render() {
+	render() {
 		if (this.$el) {
 			this.vm = window.echarts.init(this.$el);
-			this._options = await this.renderFuc.call(this, {
-				styleOption: this.styleOption,
-				apiData: this.apiData,
-			});
+			console.log(this.vm.setOption, this._options);
 			this._options && this.vm?.setOption(this._options, true);
 		}
 	}
-	async getApiData() {
-		const res = await HttpRequest.request({
-			url: this.apiOption.url,
-			method: "POST",
-		});
-		if (res.data.code === 200) {
-			this.apiData = res.data.data;
-			console.log(this.apiData);
-		}
-	}
-	setRenderFunc(func: Function) {
-		if (typeof func !== "function") return;
-		this.renderFuc = func;
-	}
-	async reRender() {
-		this._options = await this.renderFuc.bind(this)();
-		this._options && this.vm?.setOption(this._options, true);
+	resize() {
+		if (!this.vm) return;
+		this.vm.resize();
 	}
 	log(str: string) {
 		if (this.isDeugger) {
 			console.info(str);
 		}
 	}
-
 	throwError(str: string) {
 		throw new Error(str);
 	}

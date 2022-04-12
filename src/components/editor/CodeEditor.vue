@@ -55,12 +55,16 @@ import "codemirror/addon/fold/xml-fold.js";
 import "codemirror/addon/fold/indent-fold.js";
 import "codemirror/addon/fold/markdown-fold.js";
 import "codemirror/addon/fold/comment-fold.js";
-import { onMounted, defineProps, ref, watchEffect } from "vue";
+import { onMounted, defineProps, ref, watchEffect, computed } from "vue";
+import { useStore } from "vuex";
 import { getChart } from "@/interface/chart";
-import store from "@/store";
 interface Props {
 	uid: string;
 }
+const store = useStore();
+const chartEditor = computed<ChartOptionsProps>(() => {
+	return store.state.chart.chart;
+});
 const props = defineProps<Props>();
 const code = ref<string>("");
 const chartOption = ref<ChartOptionsProps | null>(null);
@@ -80,20 +84,20 @@ const execData = (str: string): Function => {
 	}
 	return renderFuc;
 };
-const initChart = () => {
+const renderChart = () => {
 	if (!chart.value) {
-		chart.value = new Chart(chartOption.value, true);
+		chart.value = new Chart(chartEditor.value, true);
 	} else {
-		chart.value.setRenderFunc(chartOption.value?.renderFuc);
+		chart.value.setRenderFunc(chartEditor.value?.renderFuc);
 		chart.value.reRender();
 	}
 };
 const onChange = (instance: Editor, changeObj: EditorChange) => {
 	const codeString = editor.value?.getValue();
 	console.log("change", typeof codeString);
-	if (!codeString || !chartOption.value) return;
-	chartOption.value.renderFuc = execData(codeString);
-	initChart();
+	if (!codeString || !chartEditor.value) return;
+	const codeFunction = execData(codeString);
+	store.commit("chart/setRenderFunc", codeFunction);
 };
 const onCursorActivity = () => {
 	console.warn("onCursorActivity");
@@ -120,30 +124,15 @@ const initCodeEditor = (str: string | ""): void => {
 	editor.value.on("change", onChange);
 	editor.value.on("cursorActivity", onCursorActivity);
 };
-const getChartCode = async (uid: string) => {
-	const res = await getChart(uid);
-	if (res.data.code === 0) {
-		// eslint-disable-next-line @typescript-eslint/camelcase
-		const { uid, name, style_option, api_option, handler } = res.data.data;
-		code.value = handler;
-		chartOption.value = {
-			id: uid,
-			name,
-			styleOption: JSON.parse(style_option),
-			apiOption: JSON.parse(api_option),
-			renderFuc: execData(handler),
-		};
-		initChart();
-		initCodeEditor(code.value);
-	}
-};
 watchEffect(() => {
-	if (props.uid) {
-		getChartCode(props.uid);
+	if (chartEditor.value) {
+		console.log("change---loader");
+		renderChart();
+		console.log(editor.value)
+		if (!editor.value) {
+			initCodeEditor(chartEditor.value.renderFuc.toString());
+		};
 	}
-});
-onMounted(() => {
-	//initCodeEditor("");
 });
 </script>
 <style lang="scss" scoped>
