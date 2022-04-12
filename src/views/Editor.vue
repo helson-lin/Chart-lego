@@ -35,7 +35,6 @@ import formatterChartOption, {
 } from "@/utils/formatterChartOption";
 import { onMounted, ref } from "vue";
 import { useStore } from "vuex";
-import { Item } from "node_modules/ant-design-vue/lib/menu";
 export default {
 	components: { BaseSetting, Editor, LeftCircleFilled, RightCircleFilled },
 	setup() {
@@ -94,7 +93,7 @@ export default {
 		height: 100%;
 		background: #fff;
 		box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-		z-index: 2;
+		z-index: 2200;
 		.tool-bar-ico {
 			position: absolute;
 			left: -20px;

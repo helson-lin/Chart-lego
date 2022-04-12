@@ -28,7 +28,7 @@ export const testComponents: EditorStoreProps = {
 	style: {
 		width: 1920,
 		height: 1080,
-		background: "rgba(4, 24, 130, 0.5)",
+		background: "#6491c4",
 		imgUrl: "",
 		customImgBack: false,
 	},
@@ -41,6 +41,9 @@ const editor: Module<EditorStoreProps, GloablDataProps> = {
 	mutations: {
 		setComponent: (state, list) => {
 			state.component = list;
+		},
+		setStyle(state, options: EditorStyleProps) {
+			state.style = options;
 		},
 	},
 };

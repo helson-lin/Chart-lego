@@ -1,24 +1,33 @@
-import axios, { Axios, AxiosRequestConfig, AxiosRequestHeaders } from "axios"
-import config from "../../config/index"
+import axios, { Axios, AxiosRequestConfig, AxiosRequestHeaders } from "axios";
+import config from "../../config/index";
 
 interface KeyValueObjProps {
-	[key: string]: string
+	[key: string]: string;
 }
 interface ConfigProps {
-	baseUrl: string
-	headers: AxiosRequestHeaders
+	baseUrl: string;
+	headers: AxiosRequestHeaders;
+}
+export interface ApiDataProps<T> {
+	code: number;
+	data: T;
+	msg: string;
+}
+export interface Reponse<T> {
+	status: number;
+	data: ApiDataProps<T>;
 }
 const baseUrl =
 	process.env.NODE_ENV === "development"
 		? config.baseUrl.dev
-		: config.baseUrl.pro
+		: config.baseUrl.pro;
 class HttpRequest {
-	private baseUrl: string
-	private queue: { [key: string]: any }
+	private baseUrl: string;
+	private queue: { [key: string]: any };
 	constructor(baseUrl: string) {
-		this.baseUrl = baseUrl
-		this.queue = {}
-		console.log(this.baseUrl)
+		this.baseUrl = baseUrl;
+		this.queue = {};
+		console.log(this.baseUrl);
 	}
 	getInsideConfig(): ConfigProps {
 		const config = {
@@ -26,11 +35,11 @@ class HttpRequest {
 			headers: {
 				//
 			},
-		}
-		return config
+		};
+		return config;
 	}
 	destroy(url: string) {
-		delete this.queue[url]
+		delete this.queue[url];
 		if (!Object.keys(this.queue).length) {
 			// Spin.hide() 当前没有请求的url
 		}
@@ -43,44 +52,44 @@ class HttpRequest {
 				if (!Object.keys(this.queue).length) {
 					// Spin.show() // 不建议开启，因为界面不友好
 				}
-				this.queue[url] = true
-				return config
+				this.queue[url] = true;
+				return config;
 			},
 			(error) => {
-				return Promise.reject(error)
+				return Promise.reject(error);
 			}
-		)
+		);
 		// 响应拦截
 		instance.interceptors.response.use(
 			(res) => {
-				this.destroy(url)
-				const { data, status } = res
-				return { data, status }
+				this.destroy(url);
+				const { data, status } = res;
+				return { data, status };
 			},
 			(error) => {
-				this.destroy(url)
-				let errorInfo = error.response
+				this.destroy(url);
+				let errorInfo = error.response;
 				if (!errorInfo) {
 					const {
 						request: { statusText, status },
 						config,
-					} = JSON.parse(JSON.stringify(error))
+					} = JSON.parse(JSON.stringify(error));
 					errorInfo = {
 						statusText,
 						status,
 						request: { responseURL: config.url },
-					}
+					};
 				}
-				return Promise.reject(error)
+				return Promise.reject(error);
 			}
-		)
+		);
 	}
 	request(options: AxiosRequestConfig) {
-		if (!options.url) console.warn("Axios： url can't be blank")
-		const instance = axios.create({ baseURL: this.baseUrl })
-		options = Object.assign(this.getInsideConfig(), options)
-		this.interceptors(instance, options.url || "")
-		return instance(options)
+		if (!options.url) console.warn("Axios： url can't be blank");
+		const instance = axios.create({ baseURL: this.baseUrl });
+		options = Object.assign(this.getInsideConfig(), options);
+		this.interceptors(instance, options.url || "");
+		return instance(options);
 	}
 }
-export default new HttpRequest(baseUrl)
+export default new HttpRequest(baseUrl);

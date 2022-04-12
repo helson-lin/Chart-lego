@@ -32,11 +32,18 @@
 					<div class="option-label">背景图</div>
 					<div class="option-value">
 						<div class="upload-box">
+							<img
+								style="200px;height:90px"
+								v-if="editorSetting.imgUrl"
+								:src="editorSetting.imgUrl"
+							/>
 							<a-upload-dragger
+								v-if="!editorSetting.imgUrl"
 								v-model:fileList="fileList"
 								name="file"
+								:headers="headers"
 								:multiple="true"
-								action="/file/upload"
+								:action="fileUploadUrl"
 								@change="handleChange"
 								@drop="handleDrop"
 							>
@@ -50,7 +57,13 @@
 				</div>
 				<div class="option-item" v-show="!editorSetting.customImgBack">
 					<div class="option-label">背景色</div>
-					<div class="option-value"></div>
+					<div class="option-value">
+						<color-picker
+							@finish="change"
+							defaultValue="#343434"
+							hex="#343434"
+						></color-picker>
+					</div>
 				</div>
 			</a-collapse-panel>
 		</a-collapse>
@@ -60,6 +73,9 @@
 	</div>
 </template>
 <script lang="ts" setup>
+import ColorPicker from "colorpicker-v3"; // 注册组件
+import "colorpicker-v3/dist/style.css"; // 引入样式文件
+import Config from "@/config/index";
 import { useStore } from "vuex";
 import { computed, ref } from "vue";
 import { EditorStyleProps } from "./Editor.vue";
@@ -68,9 +84,29 @@ const store = useStore();
 const editorSetting = computed<EditorStyleProps>(() => {
 	return store.state.editor.style;
 });
+const headers = computed(() => {
+	return {
+		authorization: localStorage.getItem("token"),
+		Cookie: "token=" + localStorage.getItem("token"),
+	};
+});
+const fileUploadUrl = computed(() => {
+	const env = process.env.NODE_ENV === "development" ? "dev" : "pro";
+	return (
+		Config.baseUrl[env] +
+		"/file/upload?dir_uid=270a791d5227280b062a3024e5f71044"
+	);
+});
 const fileList = ref([]);
+const color = ref<string>("2b3b4b");
+const str = "#2b3b4b";
+const colorRgba = ref<string>("#eeeeee");
 const handleChange = ({ file }) => {
 	console.log(file, "文件上传", "handleChange");
+	if (file.status === "done") {
+		const url = file.response.data.url;
+		store.commit("editor/setStyle", { ...editorSetting.value, imgUrl: url });
+	}
 };
 const handleDrop = (e) => {
 	console.log(e, "文件上传12", "handleDrop");
@@ -93,8 +129,20 @@ const getLoction = () => {
 	}
 	console.log("定位", "handleDrop", componentListPos);
 };
+const change = (e) => {
+	console.log(e, editorSetting.value.background);
+	store.commit("editor/setStyle", {
+		...editorSetting.value,
+		background: e.rgba,
+	});
+	colorRgba.value = e.rgba;
+};
 </script>
 <style lang="scss" scoped>
+/deep/ .ant-image-img {
+	width: 100%;
+	height: 100% !important;
+}
 .base-setting {
 	width: 100%;
 	height: 100%;
@@ -125,7 +173,7 @@ const getLoction = () => {
 	align-items: center;
 	&.upload {
 		margin-top: 40px;
-
+		height: 90px;
 		.ant-upload-text {
 			font-size: 12px;
 			margin-top: -10px;
@@ -140,6 +188,19 @@ const getLoction = () => {
 		flex: 1;
 		padding-left: 20px;
 		box-sizing: border-box;
+		.upload-box {
+			img {
+				position: relative;
+				&::after {
+					position: absolute;
+					content: "";
+					display: block;
+					width: 20px;
+					height: 20px;
+					background: red;
+				}
+			}
+		}
 	}
 }
 </style>

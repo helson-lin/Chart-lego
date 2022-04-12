@@ -5,4 +5,4 @@ declare global {
 		$echarts: echarts;
 	}
 }
-// declare module "codemirror"
+declare module "colorpicker-v3";
