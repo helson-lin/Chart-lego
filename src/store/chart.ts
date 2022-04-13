@@ -1,6 +1,7 @@
 import { Module } from "vuex";
 import { GloablDataProps } from "./index";
-import Chart, { ChartOptionsProps } from "@/lib/chart/index";
+import Chart from "@/lib/chart/index";
+import { ChartOptionsProps } from "@/types/chart";
 export interface ChartStoreProps {
 	chart: ChartOptionsProps | null;
 }
@@ -16,9 +17,9 @@ const chart: Module<ChartStoreProps, GloablDataProps> = {
 		},
 		setRenderFunc(state, renderFunc: Function) {
 			if (!state.chart) return;
-			console.log('更新')
+			console.log("更新");
 			state.chart.renderFuc = renderFunc;
-		}
+		},
 	},
 };
 

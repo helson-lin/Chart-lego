@@ -29,23 +29,18 @@ import {
 	watchEffect,
 } from "vue";
 import Moveable from "moveable";
-import Chart, { ChartOptionsProps, StyleOptionProps } from "@/lib/chart";
+import Chart from "@/lib/chart";
+import {
+	ChartOptionsProps,
+	StyleOptionProps,
+	ChartComponentProps,
+} from "@/types/chart";
+import { EditorStyleProps } from "@/types/editor";
 import { useStore } from "vuex";
 import { ref } from "vue";
 export interface ListItemProps {
 	id: string;
 	url: string;
-}
-export interface EditorStyleProps {
-	width: number;
-	height: number;
-	background?: string;
-	imgUrl?: string;
-	customImgBack: boolean;
-}
-export interface ChartComponentProps {
-	id: string;
-	chart: Chart;
 }
 const instance = getCurrentInstance();
 let targetElement: HTMLElement, moveable: Moveable;

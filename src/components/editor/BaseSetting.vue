@@ -1,7 +1,7 @@
 <template>
 	<div class="base-setting">
 		<a-collapse class="bs" v-model:activeKey="activeKey" :ghost="true">
-			<a-collapse-panel key="1" header="基础设置">
+			<a-collapse-panel key="0" header="画布设置">
 				<div class="option-item">
 					<div class="option-label">宽度</div>
 					<div class="option-value">
@@ -58,11 +58,14 @@
 				<div class="option-item" v-show="!editorSetting.customImgBack">
 					<div class="option-label">背景色</div>
 					<div class="option-value">
-						<color-picker
+						<!-- <color-picker
 							@finish="change"
-							defaultValue="#343434"
-							hex="#343434"
-						></color-picker>
+							v-model:defaultValue="editorSetting.background"
+						></color-picker> -->
+						<color-picker
+							v-model:pureColor="color"
+							v-model:gradientColor="gradientColor"
+						/>
 					</div>
 				</div>
 			</a-collapse-panel>
@@ -73,17 +76,18 @@
 	</div>
 </template>
 <script lang="ts" setup>
-import ColorPicker from "colorpicker-v3"; // 注册组件
-import "colorpicker-v3/dist/style.css"; // 引入样式文件
+// import ColorPicker from "colorpicker-v3"; // 注册组件
+// import "colorpicker-v3/dist/style.css"; // 引入样式文件
 import Config from "@/config/index";
 import { useStore } from "vuex";
-import { computed, ref } from "vue";
-import { EditorStyleProps } from "./Editor.vue";
+import { computed, ref, watchEffect } from "vue";
+import { EditorStyleProps } from "@/types/editor";
 const activeKey = ref(0);
 const store = useStore();
 const editorSetting = computed<EditorStyleProps>(() => {
 	return store.state.editor.style;
 });
+const color = ref("#ffffff");
 const headers = computed(() => {
 	return {
 		authorization: localStorage.getItem("token"),
@@ -98,9 +102,9 @@ const fileUploadUrl = computed(() => {
 	);
 });
 const fileList = ref([]);
-const color = ref<string>("2b3b4b");
-const str = "#2b3b4b";
-const colorRgba = ref<string>("#eeeeee");
+const gradientColor = ref(
+	"linear-gradient(0deg, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 100%)"
+);
 const handleChange = ({ file }) => {
 	console.log(file, "文件上传", "handleChange");
 	if (file.status === "done") {
@@ -129,14 +133,23 @@ const getLoction = () => {
 	}
 	console.log("定位", "handleDrop", componentListPos);
 };
-const change = (e) => {
-	console.log(e, editorSetting.value.background);
+const change = (color: string) => {
+	console.log(color, editorSetting.value.background);
 	store.commit("editor/setStyle", {
 		...editorSetting.value,
-		background: e.rgba,
+		background: color,
 	});
-	colorRgba.value = e.rgba;
 };
+watchEffect(() => {
+	if (editorSetting.value.background) {
+		color.value = editorSetting.value.background;
+	}
+});
+watchEffect(() => {
+	if (color.value) {
+		change(color.value);
+	}
+});
 </script>
 <style lang="scss" scoped>
 /deep/ .ant-image-img {

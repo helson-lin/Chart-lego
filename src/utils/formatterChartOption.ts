@@ -1,4 +1,5 @@
-import { ChartOptionsProps } from "@/lib/chart/index";
+import { ChartOptionsProps } from "@/types/chart";
+
 export interface ApiChartOption {
 	uid: string;
 	name: string;
@@ -6,7 +7,6 @@ export interface ApiChartOption {
 	api_option: string;
 	handler: string;
 }
-
 function evil(fn: string): Function {
 	const Fn = Function;
 	return new Fn("return " + fn)();

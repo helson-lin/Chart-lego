@@ -6,3 +6,4 @@ declare global {
 	}
 }
 declare module "colorpicker-v3";
+import "./types/editor"

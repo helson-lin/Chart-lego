@@ -1,6 +1,7 @@
 <template>
 	<div class="editor">
 		<div :class="['editor-l', isOpenMenuBar ? 'open' : 'close']">
+			<ChartList :list="ChartList" />
 			<div class="tool-bar-ico" @click="closeOrOpenMenu">
 				<left-circle-filled v-if="isOpenMenuBar" />
 				<right-circle-filled v-else />
@@ -29,14 +30,17 @@
 import { LeftCircleFilled, RightCircleFilled } from "@ant-design/icons-vue";
 import Editor from "../components/editor/Editor.vue";
 import BaseSetting from "../components/editor/BaseSetting.vue";
-import { getAllChart } from "@/interface/chart";
-import formatterChartOption, {
-	ApiChartOption,
-} from "@/utils/formatterChartOption";
+import ChartList from "../components/editor/ChartList.vue";
 import { onMounted, ref } from "vue";
 import { useStore } from "vuex";
 export default {
-	components: { BaseSetting, Editor, LeftCircleFilled, RightCircleFilled },
+	components: {
+		BaseSetting,
+		Editor,
+		LeftCircleFilled,
+		RightCircleFilled,
+		ChartList,
+	},
 	setup() {
 		const store = useStore();
 		const defaultList = ref([
@@ -49,25 +53,12 @@ export default {
 		]);
 		const isOpenToolBar = ref(true);
 		const isOpenMenuBar = ref(true);
-		const getChartList = async () => {
-			const res = await getAllChart();
-			if (res.data && res.data.code === 0) {
-				const chartList = res.data.data.rows.map((Item: ApiChartOption) =>
-					formatterChartOption.formatterChartOption(Item)
-				);
-				store.commit("editor/setComponent", chartList);
-				console.log(chartList);
-			}
-		};
 		const closeOrOpenTool = () => {
 			isOpenToolBar.value = !isOpenToolBar.value;
 		};
 		const closeOrOpenMenu = () => {
 			isOpenMenuBar.value = !isOpenMenuBar.value;
 		};
-		onMounted(() => {
-			getChartList();
-		});
 		return {
 			defaultList,
 			isOpenToolBar,

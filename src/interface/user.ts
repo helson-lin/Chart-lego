@@ -1,5 +1,4 @@
 import HttpRequest, { Reponse } from "../lib/axios/index";
-
 export const login = <T>(
 	username: string,
 	password: string
