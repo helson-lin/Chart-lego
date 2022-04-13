@@ -40,6 +40,7 @@ export type ApiOptionProps<T> = T extends boolean
 export interface ChartOptionsProps {
 	id: string; // 即是图表的id又是Dom的id
 	name: string;
+	img: string | null; // 缩略图
 	styleOption: StyleOptionProps;
 	apiOption: ApiOptionProps<true>;
 	renderFuc: Function; // 渲染的一个函数

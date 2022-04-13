@@ -1,28 +1,29 @@
 <template>
 	<div class="editor">
-		<div :class="['editor-l', isOpenMenuBar ? 'open' : 'close']">
-			<ChartList :list="ChartList" />
-			<div class="tool-bar-ico" @click="closeOrOpenMenu">
-				<left-circle-filled v-if="isOpenMenuBar" />
-				<right-circle-filled v-else />
-			</div>
+		<div class="editor-header">
+			<resize />
 		</div>
-		<div
-			:class="[
-				'editor-c',
-				isOpenToolBar ? 'tool-open' : 'tool-close',
-				isOpenMenuBar ? 'menu-open' : 'menu-close',
-			]"
-			:style="{ '--left': !isOpenMenuBar && !isOpenMenuBar ? '480px' : '' }"
-		>
-			<Editor />
-		</div>
-		<div :class="['editor-r', isOpenToolBar ? 'open' : 'close']">
-			<div class="tool-bar-ico" @click="closeOrOpenTool">
-				<left-circle-filled v-if="!isOpenToolBar" />
-				<right-circle-filled v-else />
+		<div class="editor-cc">
+			<div :class="['editor-cc-l', isOpenMenuBar ? 'open' : 'close']">
+				<ChartList :list="ChartList" />
+				<div class="tool-bar-ico" @click="closeOrOpenMenu">
+					<left-circle-filled v-if="isOpenMenuBar" />
+					<right-circle-filled v-else />
+				</div>
 			</div>
-			<BaseSetting />
+			<div
+				:class="['editor-cc-c']"
+				:style="{ '--left': !isOpenMenuBar && !isOpenMenuBar ? '480px' : '' }"
+			>
+				<Editor />
+			</div>
+			<div :class="['editor-cc-r', isOpenToolBar ? 'open' : 'close']">
+				<div class="tool-bar-ico" @click="closeOrOpenTool">
+					<left-circle-filled v-if="!isOpenToolBar" />
+					<right-circle-filled v-else />
+				</div>
+				<BaseSetting />
+			</div>
 		</div>
 	</div>
 </template>
@@ -31,6 +32,7 @@ import { LeftCircleFilled, RightCircleFilled } from "@ant-design/icons-vue";
 import Editor from "../components/editor/Editor.vue";
 import BaseSetting from "../components/editor/BaseSetting.vue";
 import ChartList from "../components/editor/ChartList.vue";
+import Resize from "../components/editor/Resize.vue";
 import { onMounted, ref } from "vue";
 import { useStore } from "vuex";
 export default {
@@ -40,6 +42,7 @@ export default {
 		LeftCircleFilled,
 		RightCircleFilled,
 		ChartList,
+		Resize,
 	},
 	setup() {
 		const store = useStore();
@@ -74,16 +77,33 @@ export default {
 	position: relative;
 	width: 100%;
 	height: 100vh;
-	overflow: hidden;
+	&-header {
+		width: 100%;
+		height: 50px;
+		padding: 0 20px;
+		box-sizing: border-box;
+		background: #fff;
+		box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+		border-bottom: 1px solid #eee;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+}
+.editor-cc {
+	position: relative;
 	display: flex;
-	background: #ffffff;
+	width: 100%;
+	height: calc(100% - 50px);
+	background: #fafafa;
+	overflow: hidden;
 	&-l,
 	&-r {
 		position: absolute;
 		width: 300px;
 		height: 100%;
 		background: #fff;
-		box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+		//box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
 		z-index: 2200;
 		.tool-bar-ico {
 			position: absolute;
@@ -117,6 +137,7 @@ export default {
 			transform: translateX(-240px);
 			// right: -240px;
 			-webkit-transition: all 1s ease 0.1s;
+			backdrop-filter: blur(20px);
 		}
 	}
 	&-r {
@@ -135,9 +156,11 @@ export default {
 	}
 	&-c {
 		flex: 1;
+		width: 100%;
 		box-sizing: border-box;
-		padding: 0 300px 0 300px;
-		overflow: auto;
+		// padding: 0 300px 0 300px;
+		box-sizing: border-box;
+		overflow: hidden;
 		&.tool-open {
 			padding-right: 300px;
 		}

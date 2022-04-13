@@ -9,6 +9,7 @@ export interface EditorStyleProps {
 	background?: string;
 	imgUrl: string | null;
 	customImgBack: boolean;
+	resize: number;
 }
 export interface EditorProps {
 	list: ListItemProps[];

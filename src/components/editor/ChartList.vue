@@ -1,30 +1,41 @@
 <template>
 	<div class="chart-list">
+		<div class="loading" v-if="loading">
+			<a-spin :indicator="indicator" :spinning="loading" tip="Loading...">
+			</a-spin>
+		</div>
 		<div
 			class="chart-cop"
 			v-for="chart in chartListData"
 			:key="chart.id"
 			@click="addToEditor(chart)"
 		>
-			<div class="chart-i" :id="`list-c-${chart.id}`"></div>
+			<img class="chart-i" :src="chart.img || ''" :alt="chart.name" />
 		</div>
 	</div>
 </template>
 <script lang="ts" setup>
-import { ref, computed, getCurrentInstance, onMounted, watchEffect } from "vue";
+import { ref, computed, onMounted, h } from "vue";
+import { LoadingOutlined } from "@ant-design/icons-vue";
 import { useStore } from "vuex";
 import { v4 as uuidv4 } from "uuid";
-import { ChartOptionsProps, ChartComponentProps } from "@/types/chart";
+import { ChartOptionsProps } from "@/types/chart";
 import formatterChartOption, {
 	ApiChartOption,
 } from "@/utils/formatterChartOption";
-import { renderByList } from "@/hooks/useChart";
 import { getAllChart } from "@/interface/chart";
 const store = useStore();
-const instance = getCurrentInstance();
+const loading = ref(true);
 const chartListData = ref<ChartOptionsProps[]>();
 const componentList = computed<ChartOptionsProps[]>(() => {
 	return store.state.editor.component;
+});
+const indicator = h(LoadingOutlined, {
+	style: {
+		fontSize: "28px",
+		color: "#1f94ff",
+	},
+	spin: true,
 });
 const getChartList = async () => {
 	const res = await getAllChart();
@@ -33,6 +44,7 @@ const getChartList = async () => {
 		chartListData.value = res.data.data.rows.map((Item: ApiChartOption) =>
 			formatterChartOption.formatterChartOption(Item)
 		);
+		loading.value = false;
 	}
 };
 const addToEditor = (chart: ChartOptionsProps) => {
@@ -46,17 +58,10 @@ const addToEditor = (chart: ChartOptionsProps) => {
 onMounted(() => {
 	getChartList();
 });
-watchEffect(() => {
-	if (chartListData.value && chartListData.value.length) {
-		instance?.proxy?.$nextTick(() => {
-			if (!chartListData.value) return;
-			renderByList(chartListData.value, "list-c-");
-		});
-	}
-});
 </script>
 <style lang="scss" scoped>
 .chart-list {
+	position: relative;
 	width: 100%;
 	height: 100%;
 	display: flex;
@@ -64,10 +69,18 @@ watchEffect(() => {
 	padding: 20px 20px;
 	box-sizing: border-box;
 	overflow-y: auto;
+	user-select: none;
+	.loading {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+	}
 }
 .chart-cop {
 	width: 100%;
 	height: 240px;
+	overflow: hidden;
 	margin-bottom: 20px;
 	pointer-events: none;
 	border: 2px solid #eee;

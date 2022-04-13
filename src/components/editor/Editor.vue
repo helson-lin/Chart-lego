@@ -1,6 +1,11 @@
 /* eslint-disable @typescript-eslint/camelcase */
 <template>
-	<div class="editor-core" id="h-ed" :style="editorStyle">
+	<div
+		class="editor-core"
+		id="h-ed"
+		:draggable="draggable"
+		:style="editorStyle"
+	>
 		<div
 			v-for="component in componentList"
 			:class="['h-dragable']"
@@ -27,6 +32,7 @@ import {
 	getCurrentInstance,
 	ScriptHTMLAttributes,
 	watchEffect,
+	ref,
 } from "vue";
 import Moveable from "moveable";
 import Chart from "@/lib/chart";
@@ -37,7 +43,6 @@ import {
 } from "@/types/chart";
 import { EditorStyleProps } from "@/types/editor";
 import { useStore } from "vuex";
-import { ref } from "vue";
 export interface ListItemProps {
 	id: string;
 	url: string;
@@ -45,10 +50,69 @@ export interface ListItemProps {
 const instance = getCurrentInstance();
 let targetElement: HTMLElement, moveable: Moveable;
 const store = useStore();
+// 画布是否可以拖拽
+const draggable = ref(false);
 const chartComponentList = ref<ChartComponentProps[] | null>(null);
 const editorSettingStyle = computed<EditorStyleProps>(() => {
 	return store.state.editor.style;
 });
+const dragListen = () => {
+	const editorDiv = document.getElementById("h-ed");
+	if (!editorDiv) return;
+	/* 拖动目标元素时触发drag事件 */
+	editorDiv.addEventListener(
+		"drag",
+		function (event) {
+			const { clientY, clientX, target } = event;
+			if (!target) return;
+			const { offsetLeft, offsetTop } = target as HTMLElement;
+			const deltaLeft = clientX - offsetLeft;
+			const deltaTop = clientY - offsetTop;
+			console.log(
+				" offsetX, offsetY",
+				event,
+				deltaLeft,
+				deltaLeft,
+				"---",
+				offsetLeft,
+				offsetTop
+			);
+		},
+		false
+	);
+
+	editorDiv.addEventListener(
+		"dragstart",
+		function (event) {
+			// 保存拖动元素的引用(ref.)
+			if (!event.target) return;
+			const dragge = event.target;
+			//  (dragged as HTMLElement).style.opacity = 0.8;
+			// // 使其半透明
+			// event.target.style.opacity = 0.5;
+		},
+		false
+	);
+
+	editorDiv.addEventListener(
+		"dragend",
+		function (event) {
+			// 重置透明度
+			// event.target.style.opacity = "";
+		},
+		false
+	);
+
+	/* 放置目标元素时触发事件 */
+	editorDiv.addEventListener(
+		"dragover",
+		function (event) {
+			// 阻止默认动作以启用drop
+			event.preventDefault();
+		},
+		false
+	);
+};
 const editorStyle = computed(() => {
 	const baseStyle = {
 		width: `${editorSettingStyle.value.width}px`,
@@ -56,6 +120,11 @@ const editorStyle = computed(() => {
 		background: editorSettingStyle.value.customImgBack
 			? `url(${editorSettingStyle.value.imgUrl})`
 			: editorSettingStyle.value.background,
+		transform: `scale(${editorSettingStyle.value.resize / 100},${
+			editorSettingStyle.value.resize / 100
+		})`,
+		border: !draggable.value ? "none" : "2px solid rgba(24, 144, 255, 0.7)",
+		cursor: !draggable.value ? "auto" : "move",
 	};
 	return baseStyle;
 });
@@ -207,6 +276,24 @@ const renderByList = () => {
 	});
 	chartComponentList.value = _chartComponentList;
 };
+const keydown = (e: KeyboardEvent) => {
+	if (e.key === "Control") {
+		draggable.value = true;
+	}
+};
+const keyup = (e: KeyboardEvent) => {
+	if (e.key === "Control") {
+		draggable.value = false;
+	}
+};
+const keyBoard = () => {
+	window.addEventListener("keydown", keydown, false);
+	window.addEventListener("keyup", keyup, false);
+};
+onMounted(() => {
+	keyBoard();
+	dragListen();
+});
 watchEffect(() => {
 	if (componentList.value && componentList.value.length) {
 		instance?.proxy?.$nextTick(() => {
@@ -224,7 +311,8 @@ watchEffect(() => {
 	position: relative;
 	background-size: 100% 100%;
 	background-repeat: no-repeat;
-	overflow: hidden;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
+	transform-origin: 50% 20%;
 }
 .h-dragable {
 	position: absolute;

@@ -6,6 +6,9 @@ export interface ApiChartOption {
 	style_option: string;
 	api_option: string;
 	handler: string;
+	img: string | null;
+	status: 0 | 1;
+	del_flag: 0 | 1;
 }
 function evil(fn: string): Function {
 	const Fn = Function;
@@ -22,13 +25,14 @@ function execData(str: string): Function {
 }
 const formatterChartOption = (data: ApiChartOption): ChartOptionsProps => {
 	// eslint-disable-next-line @typescript-eslint/camelcase
-	const { uid, name, style_option, api_option, handler } = data;
+	const { uid, name, style_option, api_option, handler, img } = data;
 	return {
 		id: uid,
 		name,
 		styleOption: JSON.parse(style_option),
 		apiOption: JSON.parse(api_option),
 		renderFuc: execData(handler),
+		img: img,
 	};
 };
 

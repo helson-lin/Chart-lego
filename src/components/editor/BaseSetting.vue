@@ -76,8 +76,8 @@
 	</div>
 </template>
 <script lang="ts" setup>
-// import ColorPicker from "colorpicker-v3"; // 注册组件
-// import "colorpicker-v3/dist/style.css"; // 引入样式文件
+import { ColorPicker } from "vue3-colorpicker";
+import "vue3-colorpicker/style.css";
 import Config from "@/config/index";
 import { useStore } from "vuex";
 import { computed, ref, watchEffect } from "vue";

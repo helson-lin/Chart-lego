@@ -10,7 +10,6 @@ import Vue3ColorPicker from "vue3-colorpicker";
 import "vue3-colorpicker/style.css";
 const app = createApp(App);
 app.config.globalProperties.$axios = axios;
-app.config.globalProperties.$axios = axios;
 app.use(Antd).use(Vue3ColorPicker).use(router).use(store);
 const vm = app.mount("#app");
 window.$vm = vm;

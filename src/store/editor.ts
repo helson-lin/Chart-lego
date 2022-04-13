@@ -13,9 +13,10 @@ export interface EditorStoreProps {
 const defaultStyle: EditorStyleProps = {
 	width: 1920,
 	height: 1080,
-	background: "#6491c4",
-	imgUrl: null,
+	background: "#f2f2f2",
+	imgUrl: "https:/pic.kblue.site/index_bg.png",
 	customImgBack: false,
+	resize: 60,
 };
 export const testComponents: EditorStoreProps = {
 	id: uuidv4(),
@@ -34,6 +35,9 @@ const editor: Module<EditorStoreProps, GloablDataProps> = {
 		},
 		setStyle(state, options: EditorStyleProps) {
 			state.style = options;
+		},
+		setEditorStyleSize(state, size: number) {
+			state.style.resize = size;
 		},
 	},
 };

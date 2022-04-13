@@ -10,7 +10,7 @@
 			</div>
 			<div class="editor-r">
 				<div
-					id="af1662dfbada6935775119edd6dfb2a5"
+					id="f1662dfbada6935775119edd6dfb2a59"
 					style="width: 400px; height: 400px"
 				></div>
 			</div>
@@ -25,7 +25,7 @@ import { getChart } from "@/interface/chart";
 export default {
 	components: { CodeEditor },
 	setup() {
-		const uid = ref("af1662dfbada6935775119edd6dfb2a5");
+		const uid = ref("f1662dfbada6935775119edd6dfb2a59");
 		const store = useStore();
 		const v1 = ref<HTMLElement | null>(null);
 		const print = () => {
@@ -61,7 +61,7 @@ export default {
 			}
 		};
 		onMounted(() => {
-			getChartCode("af1662dfbada6935775119edd6dfb2a5");
+			getChartCode("f1662dfbada6935775119edd6dfb2a59");
 		});
 		return {
 			print,
