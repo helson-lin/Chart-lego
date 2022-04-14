@@ -1,0 +1,10 @@
+@font-face {
+	font-family: Fira Code;
+	src: url("./static/font/FiraCode-Regular.ttf");
+}
+body,
+html {
+	margin: 0;
+	padding: 0;
+	background: none !important;
+}

@@ -46,6 +46,16 @@ class Chart {
 			this._options && this.vm?.setOption(this._options, true);
 		}
 	}
+	async reRender() {
+		if (this.isDeugger) console.log("重新渲染CHART");
+		this._options = await this.renderFuc.bind(this)();
+		if (this.isDeugger) console.log("重新渲染CHART-Options", this._options);
+		this._options && this.vm?.setOption(this._options, true);
+		if (this.isDeugger) console.log("重新渲染CHART-vm", this.vm);
+	}
+	setRenderFunc(func: Function) {
+		this.renderFuc = func;
+	}
 	resize() {
 		if (!this.vm) return;
 		this.vm.resize();

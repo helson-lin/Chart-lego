@@ -1,0 +1,13 @@
+/**
+ * @description: 多行文本溢出 
+ * @param {number}  文字溢出显示行数
+ */
+@mixin text-overflow($lineNum) {
+    display: -webkit-box;
+    overflow: hidden;
+    white-space: normal !important;
+    text-overflow: ellipsis;
+    word-wrap:break-word;
+    -webkit-line-clamp: $lineNum;
+    -webkit-box-orient: vertical
+}

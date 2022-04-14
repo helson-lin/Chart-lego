@@ -82,8 +82,8 @@ export default {
 		height: 50px;
 		padding: 0 20px;
 		box-sizing: border-box;
-		background: #fff;
-		box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+		background: $background-color-primary;
+		box-shadow: $shadow-shallow;
 		border-bottom: 1px solid #eee;
 		display: flex;
 		justify-content: center;
@@ -95,7 +95,7 @@ export default {
 	display: flex;
 	width: 100%;
 	height: calc(100% - 50px);
-	background: #fafafa;
+	background: $background-color-primary;
 	overflow: hidden;
 	&-l,
 	&-r {

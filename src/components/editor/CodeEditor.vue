@@ -5,6 +5,9 @@
 	</div>
 </template>
 <script lang="ts" setup>
+import { h } from "vue";
+import { notification } from "ant-design-vue";
+import { BugOutlined } from "@ant-design/icons-vue";
 import CodeMirror, { Editor, EditorChange } from "codemirror";
 import Chart, { ChartOptionsProps } from "@/lib/chart";
 import "codemirror/mode/javascript/javascript";
@@ -55,21 +58,20 @@ import "codemirror/addon/fold/xml-fold.js";
 import "codemirror/addon/fold/indent-fold.js";
 import "codemirror/addon/fold/markdown-fold.js";
 import "codemirror/addon/fold/comment-fold.js";
-import { onMounted, defineProps, ref, watchEffect, computed } from "vue";
+import { ref, watchEffect, computed, defineProps, defineEmits } from "vue";
 import { useStore } from "vuex";
-import { getChart } from "@/interface/chart";
 interface Props {
-	uid: string;
+	run: boolean;
 }
 const store = useStore();
 const chartEditor = computed<ChartOptionsProps>(() => {
 	return store.state.chart.chart;
 });
 const props = defineProps<Props>();
-const code = ref<string>("");
-const chartOption = ref<ChartOptionsProps | null>(null);
+const emits = defineEmits<{
+	(e: "runStatusChange", val: boolean): void;
+}>();
 const chart = ref<Chart | null>(null);
-const renderFucCode = ref<Function | null>(null);
 const editor = ref<Editor | null>(null);
 function evil(fn: string) {
 	const Fn = Function;
@@ -80,7 +82,19 @@ const execData = (str: string): Function => {
 	try {
 		renderFuc = evil(str);
 	} catch (err) {
-		console.log("错误");
+		notification.open({
+			message: "代码错误警告",
+			description:
+				"Couldn't find a function to execute in the option OR this function is exist error",
+			icon: () => h(BugOutlined, { style: "color: #108ee9" }),
+			onClick: () => {
+				console.log("Notification Clicked!");
+			},
+		});
+		emits("runStatusChange", false);
+		throw new Error(
+			"Couldn't find a function to execute in the option OR this function is exist error"
+		);
 	}
 	return renderFuc;
 };
@@ -88,19 +102,31 @@ const renderChart = () => {
 	if (!chart.value) {
 		chart.value = new Chart(chartEditor.value, true);
 	} else {
+		console.log(chart.value, "冲洗你先让");
 		chart.value.setRenderFunc(chartEditor.value?.renderFuc);
 		chart.value.reRender();
 	}
 };
+/**
+ * @description: 光标激活
+ * @param {*}
+ * @return {*}
+ */
+const onCursorActivity = (instance: Editor): any => {
+	console.warn("onCursorActivity", instance.getSelection());
+};
+/**
+ * @description: 编辑器内容被修改
+ * @param {*} instance 编辑器实例
+ * @param {*} changeObj 代码改变
+ * @return {*}
+ */
 const onChange = (instance: Editor, changeObj: EditorChange) => {
 	const codeString = editor.value?.getValue();
-	console.log("change", typeof codeString);
+	console.log("code changed");
 	if (!codeString || !chartEditor.value) return;
 	const codeFunction = execData(codeString);
 	store.commit("chart/setRenderFunc", codeFunction);
-};
-const onCursorActivity = () => {
-	console.warn("onCursorActivity");
 };
 const initCodeEditor = (str: string | ""): void => {
 	const codemirrorDiv = document.getElementById("codemirror");
@@ -110,28 +136,51 @@ const initCodeEditor = (str: string | ""): void => {
 		value: CodeMirror.Doc(str),
 		lineNumbers: true, //显示行号
 		indentUnit: 4,
+		tabSize: 4,
 		theme: "dracula", //设置主题
 		lineWrapping: true, //代码折叠
 		foldGutter: true,
+		lineWiseCopyCut: true,
 		gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
 		matchBrackets: true, //括号匹配
 		indentWithTabs: true,
 		dragDrop: true,
 		extraKeys: { Ctrl: "autocomplete" },
 		allowDropFileTypes: ["text/html", "text/javascript"],
+		hintOptions: { completeSingle: false },
 		readOnly: false,
 	});
-	editor.value.on("change", onChange);
+	// editor.value.on("change", onChange);
 	editor.value.on("cursorActivity", onCursorActivity);
+	editor.value.setOption("extraKeys", {
+		// 自定义按键
+		Tab: function (cm: Editor) {
+			if (!cm || cm.getOption("indentUnit") === undefined) return;
+			const spaces = Array(cm.getOption("indentUnit") + 1).join(" ");
+			cm.replaceSelection(spaces);
+		},
+	});
 };
 watchEffect(() => {
+	if (props.run) {
+		const codeString = editor.value?.getValue();
+		console.log("code changed");
+		if (!codeString || !chartEditor.value) return;
+		const codeFunction = execData(codeString);
+		store.commit("chart/setRenderFunc", codeFunction);
+		setTimeout(() => {
+			emits("runStatusChange", false);
+		}, 200);
+	}
+});
+watchEffect(() => {
 	if (chartEditor.value) {
-		console.log("change---loader");
 		renderChart();
-		console.log(editor.value)
+		console.log(editor.value);
 		if (!editor.value) {
+			console.log("初始化编辑器数据");
 			initCodeEditor(chartEditor.value.renderFuc.toString());
-		};
+		}
 	}
 });
 </script>
@@ -143,7 +192,10 @@ watchEffect(() => {
 #codemirror {
 	width: 100%;
 	height: 100%;
-	overflow-y: auto;
+	font-family: Fira Code, Arial, Helvetica, sans-serif;
+	/deep/ .CodeMirror-vscrollbar {
+		@include scrollbar(10px, 15px);
+	}
 	:deep() .CodeMirror {
 		height: 100%;
 	}
