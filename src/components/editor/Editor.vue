@@ -12,16 +12,8 @@
 			:key="component.id"
 			:id="component.id"
 			:style="locationStyle(component.styleOption)"
+			@click="chartClick"
 		></div>
-		<!-- <div
-			:class="['h-dragable']"
-			:style="chart.style"
-			id="dragable"
-			v-for="chart in list"
-			:key="chart.id"
-		>
-			<iframe :src="chart.url" frameborder="0"></iframe>
-		</div> -->
 	</div>
 </template>
 <script lang="ts" setup>
@@ -43,19 +35,53 @@ import {
 } from "@/types/chart";
 import { EditorStyleProps } from "@/types/editor";
 import { useStore } from "vuex";
+import { DragNodeEvent } from "ant-design-vue/lib/vc-tree/interface";
 export interface ListItemProps {
 	id: string;
 	url: string;
 }
 const instance = getCurrentInstance();
-let targetElement: HTMLElement, moveable: Moveable;
 const store = useStore();
+// 正在执行编辑的对象
+let targetElement: HTMLElement, moveable: Moveable | null;
 // 画布是否可以拖拽
 const draggable = ref(false);
+// 编辑器图表组件
 const chartComponentList = ref<ChartComponentProps[] | null>(null);
+// 编辑器样式
 const editorSettingStyle = computed<EditorStyleProps>(() => {
 	return store.state.editor.style;
 });
+const componentList = computed<ChartOptionsProps[]>(() => {
+	return store.state.editor.component;
+});
+// 编辑器style 实时修改
+const editorStyle = computed(() => {
+	const baseStyle = {
+		width: `${editorSettingStyle.value.width}px`,
+		height: `${editorSettingStyle.value.height}px`,
+		background: editorSettingStyle.value.customImgBack
+			? `url(${editorSettingStyle.value.imgUrl})`
+			: editorSettingStyle.value.background,
+		transform: `scale(${editorSettingStyle.value.resize / 100},${
+			editorSettingStyle.value.resize / 100
+		})`,
+		border: !draggable.value ? "none" : "2px solid rgba(24, 144, 255, 0.7)",
+		cursor: !draggable.value ? "auto" : "move",
+	};
+	return baseStyle;
+});
+// 图表组件的位置的大小样式信息
+const locationStyle = (style: StyleOptionProps): { [key: string]: string } => {
+	return {
+		width: `${style.width}px`,
+		height: `${style.height}px`,
+		left: `${style.left}px`,
+		top: `${style.top}px`,
+		position: "absoulute",
+	};
+};
+// 监听编辑器拖拽
 const dragListen = () => {
 	const editorDiv = document.getElementById("h-ed");
 	if (!editorDiv) return;
@@ -113,33 +139,6 @@ const dragListen = () => {
 		false
 	);
 };
-const editorStyle = computed(() => {
-	const baseStyle = {
-		width: `${editorSettingStyle.value.width}px`,
-		height: `${editorSettingStyle.value.height}px`,
-		background: editorSettingStyle.value.customImgBack
-			? `url(${editorSettingStyle.value.imgUrl})`
-			: editorSettingStyle.value.background,
-		transform: `scale(${editorSettingStyle.value.resize / 100},${
-			editorSettingStyle.value.resize / 100
-		})`,
-		border: !draggable.value ? "none" : "2px solid rgba(24, 144, 255, 0.7)",
-		cursor: !draggable.value ? "auto" : "move",
-	};
-	return baseStyle;
-});
-const locationStyle = (style: StyleOptionProps) => {
-	return {
-		width: `${style.width}px`,
-		height: `${style.height}px`,
-		left: `${style.left}px`,
-		top: `${style.top}px`,
-		position: "absoulute",
-	};
-};
-const componentList = computed<ChartOptionsProps[]>(() => {
-	return store.state.editor.component;
-});
 const componentResize = (id: string) => {
 	console.log("chartComponentList", chartComponentList.value);
 	if (!chartComponentList.value) return;
@@ -151,11 +150,12 @@ const componentResize = (id: string) => {
 		console.log("resizeId", id, currentCharts[0].chart);
 	}
 };
+// 初始化拖拽插件
 const init = () => {
 	const editorDom = document.getElementById("h-ed");
 	if (!editorDom) return;
 	moveable = new Moveable(editorDom, {
-		target: targetElement,
+		target: targetElement, // 指定拖拽对象
 		className: "dragable",
 		draggable: true,
 		dragArea: true,
@@ -208,15 +208,13 @@ const init = () => {
 		.on("resizeStart", ({ target, clientX, clientY }) => {
 			console.log("onResizeStart", target.id);
 		})
-		.on(
-			"resize",
-			({ target, width, height, dist, delta, clientX, clientY }) => {
-				console.log("onResize", target.id);
-				componentResize(target.id);
-				delta[0] && (target!.style.width = `${width}px`);
-				delta[1] && (target!.style.height = `${height}px`);
-			}
-		)
+		.on("resize", (e) => {
+			const { target, width, height, dist, delta, clientX, clientY } = e;
+			console.log("onResize", target, e);
+			componentResize(target.id);
+			delta[0] && (target!.style.width = `${width}px`);
+			delta[1] && (target!.style.height = `${height}px`);
+		})
 		.on("resizeEnd", ({ target, isDrag, clientX, clientY }) => {
 			console.log("onResizeEnd", target, isDrag);
 		});
@@ -227,15 +225,7 @@ const init = () => {
 		})
 		.on(
 			"scale",
-			({
-				target,
-				scale,
-				dist,
-				delta,
-				transform,
-				clientX,
-				clientY,
-			}: DragEventProps) => {
+			({ target, scale, dist, delta, transform, clientX, clientY }) => {
 				console.log("onScale scale", transform);
 				target!.style.transform = transform;
 			}
@@ -244,28 +234,34 @@ const init = () => {
 			console.log("onScaleEnd", target, isDrag);
 		});
 };
+const judegNodeIsDragable = (e: HTMLElement) => {
+	if (e.classList.value.indexOf("h-dragable") != -1) {
+		return e;
+	} else {
+		if (!e.parentElement) throw new DOMException("No parent element");
+		return judegNodeIsDragable(e.parentElement);
+	}
+};
+const chartClick = (e) => {
+	console.warn("e", e.target);
+};
+// 给图表组件增加点击事件实现切换拖拽对象
 const dragDivListener = () => {
-	const dragDivs = document.getElementsByClassName("h-dragable");
-	const dragLen = dragDivs.length;
-	let i = 0;
-	do {
-		dragDivs[i].addEventListener("mouseenter", (event) => {
-			const el = event.target as HTMLElement;
-			let targetDom;
-			if (el.classList.value.indexOf("h-dragable") === -1) {
-				targetDom = el.parentElement;
-			} else {
-				targetDom = el;
-			}
-			if ((targetElement && targetElement === targetDom) || !targetDom) return;
-			targetElement = targetDom;
-			if (moveable) {
-				moveable.destroy();
-			}
-			init();
-		});
-		i += 1;
-	} while (i < dragLen);
+	const editorDiv = document.getElementById("h-ed");
+	if (!editorDiv) return;
+	editorDiv.addEventListener("click", (event) => {
+		const el = event.target as HTMLElement;
+		console.warn(el.classList, "/n", event.target);
+		console.log("event", event);
+		// const targetDom = judegNodeIsDragable(el);
+		// console.log(targetDom);
+		// if ((targetElement && targetElement === targetDom) || !targetDom) return;
+		// targetElement = targetDom;
+		// if (moveable) {
+		// 	moveable.destroy();
+		// }
+		// init();
+	});
 };
 const renderByList = () => {
 	const _chartComponentList: ChartComponentProps[] = [];
@@ -276,16 +272,27 @@ const renderByList = () => {
 	});
 	chartComponentList.value = _chartComponentList;
 };
+/**
+ * @description: 键盘keydown事件监听
+ * @param: e: KeyboardEvent
+ * @return: null
+ */
 const keydown = (e: KeyboardEvent) => {
 	if (e.key === "Control") {
 		draggable.value = true;
 	}
 };
+/**
+ * @description: 键盘keyup事件监听
+ * @param: e: KeyboardEvent
+ * @return: null
+ */
 const keyup = (e: KeyboardEvent) => {
 	if (e.key === "Control") {
 		draggable.value = false;
 	}
 };
+// 监听键盘事件
 const keyBoard = () => {
 	window.addEventListener("keydown", keydown, false);
 	window.addEventListener("keyup", keyup, false);
@@ -294,11 +301,12 @@ onMounted(() => {
 	keyBoard();
 	dragListen();
 });
+// 实时渲染组件列表： 重复渲染问题存在
 watchEffect(() => {
 	if (componentList.value && componentList.value.length) {
 		instance?.proxy?.$nextTick(() => {
 			renderByList();
-			dragDivListener();
+			// dragDivListener();
 		});
 	}
 });
@@ -315,18 +323,16 @@ watchEffect(() => {
 	transform-origin: 50% 20%;
 }
 .h-dragable {
-	position: absolute;
 	width: 400px;
 	height: 300px;
+	background: #c6a6f3;
+	div,
+	canvas {
+		pointer-events: none !important;
+	}
 }
 .class2 {
 	top: 420px;
 	left: 20px;
-}
-.h-dragable {
-	iframe {
-		width: 100%;
-		height: 100%;
-	}
 }
 </style>
