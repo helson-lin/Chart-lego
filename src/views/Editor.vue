@@ -1,6 +1,17 @@
 <template>
 	<div class="editor">
-		<Header> </Header>
+		<Header>
+			<template #>
+				<div class="of-opr">
+					<a-button type="primary" shape="round" :size="size">
+						保存
+						<template #icon>
+							<cloud-download-outlined />
+						</template>
+					</a-button>
+				</div>
+			</template>
+		</Header>
 		<div class="editor-cc">
 			<div :class="['editor-cc-l', isOpenMenuBar ? 'open' : 'close']">
 				<ChartList :list="ChartList" />
@@ -26,7 +37,11 @@
 	</div>
 </template>
 <script lang="ts">
-import { LeftCircleFilled, RightCircleFilled } from "@ant-design/icons-vue";
+import {
+	LeftCircleFilled,
+	RightCircleFilled,
+	CloudDownloadOutlined,
+} from "@ant-design/icons-vue";
 import Header from "../components/common/Header.vue";
 import Editor from "../components/editor/Editor.vue";
 import BaseSetting from "../components/editor/BaseSetting.vue";
@@ -42,6 +57,7 @@ export default {
 		LeftCircleFilled,
 		RightCircleFilled,
 		ChartList,
+		CloudDownloadOutlined,
 	},
 	setup() {
 		const store = useStore();
@@ -121,11 +137,14 @@ export default {
 		&.open {
 			transform: translateX(0);
 			// right: 0;
+			transition: all 1s ease 0.1s;
 			-webkit-transition: all 1s ease 0.1s;
+			--firefox-transition: all 1s ease 0.1s;
 		}
 		&.close {
 			transform: translateX(-240px);
 			// right: -240px;
+			transition: all 1s ease 0.1s;
 			-webkit-transition: all 1s ease 0.1s;
 			backdrop-filter: blur(20px);
 		}
@@ -136,11 +155,13 @@ export default {
 		&.open {
 			transform: translateX(0);
 			// right: 0;
+			transition: all 1s ease 0.1s;
 			-webkit-transition: all 1s ease 0.1s;
 		}
 		&.close {
 			transform: translateX(240px);
 			// right: -240px;
+			transition: all 1s ease 0.1s;
 			-webkit-transition: all 1s ease 0.1s;
 		}
 	}

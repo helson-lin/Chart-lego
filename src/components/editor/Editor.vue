@@ -5,6 +5,7 @@
 		id="h-ed"
 		:draggable="draggable"
 		:style="editorStyle"
+		@click="canvasClick"
 	>
 		<div
 			v-for="component in componentList"
@@ -43,7 +44,7 @@ export interface ListItemProps {
 const instance = getCurrentInstance();
 const store = useStore();
 // 正在执行编辑的对象
-let targetElement: HTMLElement, moveable: Moveable | null;
+let targetElement: HTMLElement | null, moveable: Moveable | null;
 // 画布是否可以拖拽
 const draggable = ref(false);
 // 编辑器图表组件
@@ -163,6 +164,7 @@ const init = () => {
 		scalable: true,
 		snappable: true,
 		snapVertical: true,
+		zoom: 1,
 		snapHorizontal: true,
 		snapElement: true,
 		snapGap: true,
@@ -175,6 +177,7 @@ const init = () => {
 		origin: false,
 		keepRatio: true,
 		edge: true,
+		padding: { left: 0, top: 0, right: 0, bottom: 0 },
 		throttleDrag: 0,
 		throttleResize: 0,
 		throttleScale: 0,
@@ -184,8 +187,8 @@ const init = () => {
 	const dragableArray = Array.from(document.querySelectorAll(".h-dragable"));
 	dragableArray.push(editorDom);
 	moveable.elementGuidelines = dragableArray;
-	moveable.horizontalGuidelines = [100, 200, 500];
-	moveable.verticalGuidelines = [100, 200, 500];
+	moveable.horizontalGuidelines = [100, 200, 300, 400, 500];
+	moveable.verticalGuidelines = [100, 200, 300, 400, 500];
 	moveable.isDisplayInnerSnapDigit = true;
 	moveable.isDisplaySnapDigit = true;
 	moveable
@@ -196,9 +199,10 @@ const init = () => {
 			const { left, top, transform, target } = el;
 			console.log("onDrag left, top", left, top);
 			if (!target) return;
-			target!.style.left = `${left}px`;
-			target!.style.top = `${top}px`;
-			target!.style.transform = transform;
+			store.commit("editor/setComponentTl", { id: target.id, left, top });
+			(target as HTMLElement).style.left = `${left}px`;
+			(target as HTMLElement).style.top = `${top}px`;
+			(target as HTMLElement).style.transform = transform;
 		})
 		.on("dragEnd", ({ target, isDrag, clientX, clientY }) => {
 			console.log("onDragEnd", target, isDrag);
@@ -209,11 +213,13 @@ const init = () => {
 			console.log("onResizeStart", target.id);
 		})
 		.on("resize", (e) => {
-			const { target, width, height, dist, delta, clientX, clientY } = e;
-			console.log("onResize", target, e);
+			const { target, width, height, delta } = e;
+			console.log("onResize", target.id, delta[0]);
+			// 图表缩放
 			componentResize(target.id);
-			delta[0] && (target!.style.width = `${width}px`);
-			delta[1] && (target!.style.height = `${height}px`);
+			store.commit("editor/setCompoentWh", { id: target.id, width, height });
+			delta[0] && ((target as HTMLElement).style.width = `${width}px`);
+			delta[1] && ((target as HTMLElement).style.height = `${height}px`);
 		})
 		.on("resizeEnd", ({ target, isDrag, clientX, clientY }) => {
 			console.log("onResizeEnd", target, isDrag);
@@ -234,7 +240,7 @@ const init = () => {
 			console.log("onScaleEnd", target, isDrag);
 		});
 };
-const judegNodeIsDragable = (e: HTMLElement) => {
+const judegNodeIsDragable = (e: HTMLElement): HTMLElement => {
 	if (e.classList.value.indexOf("h-dragable") != -1) {
 		return e;
 	} else {
@@ -242,8 +248,29 @@ const judegNodeIsDragable = (e: HTMLElement) => {
 		return judegNodeIsDragable(e.parentElement);
 	}
 };
-const chartClick = (e) => {
-	console.warn("e", e.target);
+const chartClick = (e: Event) => {
+	const el = e.target as HTMLElement;
+	const targetDom = judegNodeIsDragable(el);
+	console.log(targetDom, "targetDom");
+	if ((targetElement && targetElement === targetDom) || !targetDom) return;
+	targetElement = targetDom;
+	store.commit("editor/setEditingComponent", el.id);
+	if (moveable) {
+		moveable.destroy();
+	}
+	init();
+};
+const canvasClick = (e: Event) => {
+	const el = e.target as HTMLElement;
+	if (el.classList.value.indexOf("editor-core") !== -1) {
+		console.warn("出现");
+		if (moveable) {
+			store.commit("editor/setEditingComponent", null);
+			targetElement = null;
+			moveable.destroy();
+			moveable = null;
+		}
+	}
 };
 // 给图表组件增加点击事件实现切换拖拽对象
 const dragDivListener = () => {
@@ -252,9 +279,8 @@ const dragDivListener = () => {
 	editorDiv.addEventListener("click", (event) => {
 		const el = event.target as HTMLElement;
 		console.warn(el.classList, "/n", event.target);
-		console.log("event", event);
-		// const targetDom = judegNodeIsDragable(el);
-		// console.log(targetDom);
+		const targetDom = judegNodeIsDragable(el);
+		console.log(targetDom, "targetDom");
 		// if ((targetElement && targetElement === targetDom) || !targetDom) return;
 		// targetElement = targetDom;
 		// if (moveable) {
@@ -319,8 +345,12 @@ watchEffect(() => {
 	position: relative;
 	background-size: 100% 100%;
 	background-repeat: no-repeat;
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
+	box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
 	transform-origin: 50% 20%;
+	overflow: hidden;
+	:deep() .moveable-area {
+		cursor: grabbing;
+	}
 }
 .h-dragable {
 	width: 400px;
@@ -328,9 +358,15 @@ watchEffect(() => {
 	background: #c6a6f3;
 	background: rgba(106, 106, 106, 0.05);
 	backdrop-filter: blur(12px);
-	div,
-	canvas {
+	position: absolute;
+	cursor: pointer;
+	:deep() div {
 		pointer-events: none !important;
+	}
+	div,
+	:deep() canvas {
+		pointer-events: none !important;
+		cursor: pointer;
 	}
 }
 .class2 {

@@ -70,6 +70,7 @@ onMounted(() => {
 	box-sizing: border-box;
 	overflow-y: scroll;
 	user-select: none;
+	@include scrollbar(10px, 15px);
 	.loading {
 		position: absolute;
 		top: 50%;

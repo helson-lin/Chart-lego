@@ -5,17 +5,17 @@
 				<div class="option-item wh">
 					<div class="option-label">画布尺寸</div>
 					<div class="option-value">
-						<input
-							v-model="editorSetting.width"
+						<Input
+							v-model:data="editorSetting.width"
 							type="number"
 							placeholder="宽度"
-							data-name="宽"
+							subfix="宽"
 						/>
-						<input
-							v-model="editorSetting.height"
+						<Input
+							v-model:data="editorSetting.height"
 							type="number"
 							placeholder="高度"
-							data-name="高"
+							subfix="高"
 						/>
 					</div>
 				</div>
@@ -32,13 +32,12 @@
 				</div>
 				<div class="upload">
 					<div class="upload-box" v-show="editorSetting.customImgBack">
-						<img
+						<!-- <img
 							style="200px;height:90px"
 							v-if="editorSetting.imgUrl"
 							:src="editorSetting.imgUrl"
-						/>
+						/> -->
 						<a-upload-dragger
-							v-if="!editorSetting.imgUrl"
 							v-model:fileList="fileList"
 							name="file"
 							:headers="headers"
@@ -46,17 +45,98 @@
 							:action="fileUploadUrl"
 							@change="handleChange"
 							@drop="handleDrop"
+							@remove="remove"
 						>
-							<p class="ant-upload-drag-icon">
-								<inbox-outlined></inbox-outlined>
-							</p>
-							<p class="ant-upload-text">拖拽图片到此位置上传</p>
+							<div class="upload-inline" v-if="!editorSetting.imgUrl">
+								<p class="ant-upload-drag-icon">
+									<inbox-outlined></inbox-outlined>
+								</p>
+								<p class="ant-upload-text">拖拽图片到此位置上传</p>
+							</div>
+							<img
+								style="width: 100%; height: 90px"
+								v-if="editorSetting.imgUrl"
+								:src="editorSetting.imgUrl"
+							/>
 						</a-upload-dragger>
 					</div>
 					<div class="picker" v-show="!editorSetting.customImgBack">
 						<color-picker
 							v-model:pureColor="color"
 							v-model:gradientColor="gradientColor"
+						/>
+					</div>
+				</div>
+			</a-collapse-panel>
+		</a-collapse>
+		<a-collapse
+			class="bs"
+			v-model:activeKey="chartSetting"
+			:ghost="true"
+			v-if="editingChartId"
+		>
+			<a-collapse-panel key="0" header="图表设置">
+				<div class="option-item wh">
+					<div class="option-label">图表尺寸</div>
+					<div class="option-value">
+						<Input
+							v-model:data="editingChart.styleOption.width"
+							type="number"
+							disabled
+							placeholder="宽度"
+							subfix="宽"
+						/>
+						<Input
+							disabled
+							v-model:data="editingChart.styleOption.height"
+							type="number"
+							subfix="高"
+						/>
+					</div>
+				</div>
+				<div class="option-item wh">
+					<div class="option-label">图表定位</div>
+					<div class="option-value">
+						<Input
+							v-model:data="editingChart.styleOption.top"
+							disabled
+							type="number"
+							placeholder="上间距"
+							subfix="上"
+						/>
+						<Input
+							disabled
+							v-model:data="editingChart.styleOption.left"
+							type="number"
+							placeholder="左间距"
+							subfix="左"
+						/>
+					</div>
+				</div>
+				<div class="option-item color">
+					<div class="option-label">主题色</div>
+					<div class="option-value picker">
+						<color-picker
+							v-model:pureColor="editingChart.styleOption.themeColor"
+							v-model:gradientColor="gradientColor"
+						/>
+					</div>
+				</div>
+				<div class="option-item api">
+					<div class="option-label">API配置</div>
+					<div class="option-value">
+						<Input
+							style="width: 100%"
+							v-model:data="editingChart.apiOption.url"
+							type="text"
+							placeholder="接口地址"
+							subfix="接口地址"
+						/>
+						<Input
+							v-model:value="editingChart.apiOption.timer"
+							type="number"
+							placeholder="刷新时间"
+							subfix="秒"
 						/>
 					</div>
 				</div>
@@ -70,15 +150,32 @@
 <script lang="ts" setup>
 import { ColorPicker } from "vue3-colorpicker";
 import Switch from "../common/Switch.vue";
+import Input from "../common/Input.vue";
 import "vue3-colorpicker/style.css";
 import Config from "@/config/index";
 import { useStore } from "vuex";
 import { computed, ref, watchEffect } from "vue";
 import { EditorStyleProps } from "@/types/editor";
+import { ChartOptionsProps } from "@/types/chart";
 const activeKey = ref(0);
+const chartSetting = ref(0);
 const store = useStore();
 const editorSetting = computed<EditorStyleProps>(() => {
 	return store.state.editor.style;
+});
+const editingChartId = computed<string | null>(() => {
+	return store.state.editor.editingComponentId;
+});
+const editingChart = computed(() => {
+	const editingChartId: string = store.state.editor.editingComponentId;
+	const chartList: ChartOptionsProps[] | null = store.state.editor.component;
+	if (!chartList) return null;
+	const componet = chartList.filter((item) => item.id === editingChartId);
+	if (componet && componet.length === 1) {
+		return componet[0];
+	} else {
+		return null;
+	}
 });
 const color = ref("#ffffff");
 const headers = computed(() => {
@@ -133,6 +230,12 @@ const change = (color: string) => {
 		background: color,
 	});
 };
+const remove = () => {
+	store.commit("editor/setStyle", {
+		...editorSetting.value,
+		imgUrl: null,
+	});
+};
 const checkedChange = (val: boolean) => {
 	store.commit("editor/setEditorBackground", val);
 };
@@ -148,9 +251,26 @@ watchEffect(() => {
 });
 </script>
 <style lang="scss" scoped>
-/deep/ .ant-image-img {
+:deep() .ant-image-img {
 	width: 100%;
 	height: 100% !important;
+}
+:deep() .ant-upload {
+	padding: 0 !important;
+}
+:deep() .ant-upload-text {
+	position: relative;
+	top: -6px;
+	font-size: 12px !important;
+}
+.picker {
+	width: 100%;
+	padding: 5px 10px;
+	box-sizing: border-box;
+	background: $background-color-c;
+	:deep() .vc-color-wrap {
+		width: 100%;
+	}
 }
 .base-setting {
 	width: 100%;
@@ -191,6 +311,18 @@ watchEffect(() => {
 	flex-direction: column;
 	align-items: flex-start;
 	margin-bottom: 20px;
+	&.api {
+		.option-value {
+			width: 100%;
+			display: flex;
+			flex-direction: column;
+			margin-left: 0;
+
+			.fv-input {
+				margin-bottom: 20px;
+			}
+		}
+	}
 	&.upload {
 		margin-top: 40px;
 		height: 90px;
@@ -199,7 +331,8 @@ watchEffect(() => {
 			margin-top: -10px;
 		}
 	}
-	&.background {
+	&.background,
+	&.color {
 		.option-value {
 			width: 100%;
 			padding-left: 0px;
@@ -213,6 +346,12 @@ watchEffect(() => {
 			padding-left: 0px;
 			display: flex;
 			align-items: center;
+			.fv-input {
+				width: calc(100% / 2);
+				&:nth-child(1) {
+					margin-right: 10px;
+				}
+			}
 			input {
 				position: relative;
 				width: calc(100% / 2);
@@ -227,7 +366,7 @@ watchEffect(() => {
 					margin-right: 10px;
 				}
 			}
-			input:after {
+			input::after {
 				position: absolute;
 				right: 0;
 				top: 0;
@@ -254,22 +393,11 @@ watchEffect(() => {
 		margin-bottom: 20px;
 	}
 	.option-value {
-		flex: 1;
-		padding-left: 20px;
 		box-sizing: border-box;
 	}
 }
 .upload {
 	width: 100%;
-	.picker {
-		width: 100%;
-		padding: 5px 10px;
-		box-sizing: border-box;
-		background: $background-color-c;
-		:deep() .vc-color-wrap {
-			width: 100%;
-		}
-	}
 	.upload-box {
 		width: 100%;
 		padding: 10px 10px;
