@@ -39,6 +39,9 @@ const editor: Module<EditorStoreProps, GloablDataProps> = {
 		setEditorStyleSize(state, size: number) {
 			state.style.resize = size;
 		},
+		setEditorBackground(state, customImgBack: boolean) {
+			state.style.customImgBack = customImgBack;
+		},
 	},
 };
 

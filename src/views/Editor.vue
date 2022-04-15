@@ -1,8 +1,6 @@
 <template>
 	<div class="editor">
-		<div class="editor-header">
-			<resize />
-		</div>
+		<Header> </Header>
 		<div class="editor-cc">
 			<div :class="['editor-cc-l', isOpenMenuBar ? 'open' : 'close']">
 				<ChartList :list="ChartList" />
@@ -29,20 +27,21 @@
 </template>
 <script lang="ts">
 import { LeftCircleFilled, RightCircleFilled } from "@ant-design/icons-vue";
+import Header from "../components/common/Header.vue";
 import Editor from "../components/editor/Editor.vue";
 import BaseSetting from "../components/editor/BaseSetting.vue";
 import ChartList from "../components/editor/ChartList.vue";
-import Resize from "../components/editor/Resize.vue";
+// import Resize from "../components/editor/Resize.vue";
 import { onMounted, ref } from "vue";
 import { useStore } from "vuex";
 export default {
 	components: {
+		Header,
 		BaseSetting,
 		Editor,
 		LeftCircleFilled,
 		RightCircleFilled,
 		ChartList,
-		Resize,
 	},
 	setup() {
 		const store = useStore();
@@ -77,17 +76,8 @@ export default {
 	position: relative;
 	width: 100%;
 	height: 100vh;
-	&-header {
-		width: 100%;
-		height: 50px;
-		padding: 0 20px;
-		box-sizing: border-box;
-		background: $background-color-primary;
-		box-shadow: $shadow-shallow;
-		border-bottom: 1px solid #eee;
-		display: flex;
-		justify-content: center;
-		align-items: center;
+	:deep() .header {
+		border-bottom: 1px solid #ececec;
 	}
 }
 .editor-cc {

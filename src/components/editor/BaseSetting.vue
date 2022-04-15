@@ -2,66 +2,58 @@
 	<div class="base-setting">
 		<a-collapse class="bs" v-model:activeKey="activeKey" :ghost="true">
 			<a-collapse-panel key="0" header="画布设置">
-				<div class="option-item">
-					<div class="option-label">宽度</div>
+				<div class="option-item wh">
+					<div class="option-label">画布尺寸</div>
 					<div class="option-value">
-						<a-input
-							v-model:value="editorSetting.width"
+						<input
+							v-model="editorSetting.width"
 							type="number"
 							placeholder="宽度"
+							data-name="宽"
 						/>
-					</div>
-				</div>
-				<div class="option-item">
-					<div class="option-label">高度</div>
-					<div class="option-value">
-						<a-input
-							v-model:value="editorSetting.height"
+						<input
+							v-model="editorSetting.height"
 							type="number"
 							placeholder="高度"
+							data-name="高"
 						/>
 					</div>
 				</div>
-				<div class="option-item">
-					<div class="option-label">自定义背景图</div>
+				<div class="option-item background">
+					<div class="option-label">画布背景</div>
 					<div class="option-value">
-						<a-switch v-model:checked="editorSetting.customImgBack" />
+						<Switch
+							v-model:checked="editorSetting.customImgBack"
+							checkedTxt="图片"
+							unCheckedTxt="背景"
+							@change="checkedChange"
+						/>
 					</div>
 				</div>
-				<div class="option-item upload" v-show="editorSetting.customImgBack">
-					<div class="option-label">背景图</div>
-					<div class="option-value">
-						<div class="upload-box">
-							<img
-								style="200px;height:90px"
-								v-if="editorSetting.imgUrl"
-								:src="editorSetting.imgUrl"
-							/>
-							<a-upload-dragger
-								v-if="!editorSetting.imgUrl"
-								v-model:fileList="fileList"
-								name="file"
-								:headers="headers"
-								:multiple="true"
-								:action="fileUploadUrl"
-								@change="handleChange"
-								@drop="handleDrop"
-							>
-								<p class="ant-upload-drag-icon">
-									<inbox-outlined></inbox-outlined>
-								</p>
-								<p class="ant-upload-text">拖拽图片到此位置上传</p>
-							</a-upload-dragger>
-						</div>
+				<div class="upload">
+					<div class="upload-box" v-show="editorSetting.customImgBack">
+						<img
+							style="200px;height:90px"
+							v-if="editorSetting.imgUrl"
+							:src="editorSetting.imgUrl"
+						/>
+						<a-upload-dragger
+							v-if="!editorSetting.imgUrl"
+							v-model:fileList="fileList"
+							name="file"
+							:headers="headers"
+							:multiple="true"
+							:action="fileUploadUrl"
+							@change="handleChange"
+							@drop="handleDrop"
+						>
+							<p class="ant-upload-drag-icon">
+								<inbox-outlined></inbox-outlined>
+							</p>
+							<p class="ant-upload-text">拖拽图片到此位置上传</p>
+						</a-upload-dragger>
 					</div>
-				</div>
-				<div class="option-item" v-show="!editorSetting.customImgBack">
-					<div class="option-label">背景色</div>
-					<div class="option-value">
-						<!-- <color-picker
-							@finish="change"
-							v-model:defaultValue="editorSetting.background"
-						></color-picker> -->
+					<div class="picker" v-show="!editorSetting.customImgBack">
 						<color-picker
 							v-model:pureColor="color"
 							v-model:gradientColor="gradientColor"
@@ -77,6 +69,7 @@
 </template>
 <script lang="ts" setup>
 import { ColorPicker } from "vue3-colorpicker";
+import Switch from "../common/Switch.vue";
 import "vue3-colorpicker/style.css";
 import Config from "@/config/index";
 import { useStore } from "vuex";
@@ -140,6 +133,9 @@ const change = (color: string) => {
 		background: color,
 	});
 };
+const checkedChange = (val: boolean) => {
+	store.commit("editor/setEditorBackground", val);
+};
 watchEffect(() => {
 	if (editorSetting.value.background) {
 		color.value = editorSetting.value.background;
@@ -179,11 +175,22 @@ watchEffect(() => {
 		justify-content: center;
 	}
 }
+.w-d-setting {
+	display: flex;
+	.width,
+	.height {
+		width: calc(100% / 2);
+		input {
+			width: 80px;
+		}
+	}
+}
 .option-item {
 	width: 100%;
-	height: 40px;
 	display: flex;
-	align-items: center;
+	flex-direction: column;
+	align-items: flex-start;
+	margin-bottom: 20px;
 	&.upload {
 		margin-top: 40px;
 		height: 90px;
@@ -192,27 +199,85 @@ watchEffect(() => {
 			margin-top: -10px;
 		}
 	}
+	&.background {
+		.option-value {
+			width: 100%;
+			padding-left: 0px;
+		}
+	}
+	&.wh {
+		.option-label {
+			margin-bottom: 10px;
+		}
+		.option-value {
+			padding-left: 0px;
+			display: flex;
+			align-items: center;
+			input {
+				position: relative;
+				width: calc(100% / 2);
+				height: 35px;
+				line-height: 35px;
+				background: $background-color-c;
+				border: none;
+				outline: none;
+				padding: 0 10px;
+				box-sizing: border-box;
+				&:nth-child(1) {
+					margin-right: 10px;
+				}
+			}
+			input:after {
+				position: absolute;
+				right: 0;
+				top: 0;
+				content: "nene";
+				display: block;
+				width: 30px;
+				height: 35px;
+				line-height: 35px;
+				color: $color-text-secondary;
+			}
+			input::-webkit-outer-spin-button,
+			input:-webkit-inner-spin-button {
+				-webkit-appearance: none;
+			}
+			input[type="number"] {
+				-moz-appearance: textfield;
+			}
+		}
+	}
 	.option-label {
-		font-size: 14px;
-		font-weight: 600;
-		color: #000;
+		font-size: 12px;
+		font-weight: 400;
+		color: $color-text-secondary;
+		margin-bottom: 20px;
 	}
 	.option-value {
 		flex: 1;
 		padding-left: 20px;
 		box-sizing: border-box;
-		.upload-box {
-			img {
-				position: relative;
-				&::after {
-					position: absolute;
-					content: "";
-					display: block;
-					width: 20px;
-					height: 20px;
-					background: red;
-				}
-			}
+	}
+}
+.upload {
+	width: 100%;
+	.picker {
+		width: 100%;
+		padding: 5px 10px;
+		box-sizing: border-box;
+		background: $background-color-c;
+		:deep() .vc-color-wrap {
+			width: 100%;
+		}
+	}
+	.upload-box {
+		width: 100%;
+		padding: 10px 10px;
+		box-sizing: border-box;
+		background: $background-color-c;
+		img {
+			width: 100%;
+			cursor: pointer;
 		}
 	}
 }

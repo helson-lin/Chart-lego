@@ -68,7 +68,7 @@ onMounted(() => {
 	flex-direction: column;
 	padding: 20px 20px;
 	box-sizing: border-box;
-	overflow-y: auto;
+	overflow-y: scroll;
 	user-select: none;
 	.loading {
 		position: absolute;
@@ -79,12 +79,13 @@ onMounted(() => {
 }
 .chart-cop {
 	width: 100%;
-	height: 240px;
-	overflow: hidden;
+	min-height: 160px;
+	overflow-y: hidden;
 	margin-bottom: 20px;
 	pointer-events: none;
 	border: 2px solid #eee;
-	border-radius: 10px;
+	box-shadow: 10px 15px 40px 0px rgba(55, 79, 226, 0.1);
+	border-radius: 5px;
 	cursor: pointer;
 	pointer-events: all;
 	.chart-i {

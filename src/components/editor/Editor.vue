@@ -326,6 +326,8 @@ watchEffect(() => {
 	width: 400px;
 	height: 300px;
 	background: #c6a6f3;
+	background: rgba(106, 106, 106, 0.05);
+	backdrop-filter: blur(12px);
 	div,
 	canvas {
 		pointer-events: none !important;
