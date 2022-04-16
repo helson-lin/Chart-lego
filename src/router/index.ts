@@ -7,11 +7,23 @@ import {
 interface RouteMetaCustom extends RouteMeta {
 	title: string;
 }
+import Login from "../views/Login.vue";
 import Home from "../views/Home.vue";
 import Editor from "../views/Editor.vue";
 import CodeEditor from "../views/ChartEditor.vue";
 import Template from "../views/Template.vue";
+import { generateRedirectUrl } from "../utils/utils";
+import Cookies from "js-cookie";
 const routes = [
+	{
+		path: "/login",
+		name: "login",
+		component: Login,
+		meta: {
+			title: "Fano View-Login",
+			requiresAuth: false,
+		},
+	},
 	{
 		path: "/",
 		name: "Home",
@@ -27,7 +39,7 @@ const routes = [
 		component: Template,
 		meta: {
 			title: "视图模板",
-			requiresAuth: false,
+			requiresAuth: true,
 		},
 	},
 	{
@@ -45,7 +57,7 @@ const routes = [
 		component: CodeEditor,
 		meta: {
 			title: "图表编辑",
-			requiresAuth: false,
+			requiresAuth: true,
 		},
 	},
 ];
@@ -56,7 +68,21 @@ const router = createRouter({
 router.beforeEach((to: _RouteLocationBase, from, next) => {
 	// rewrite Document Title
 	window.document.title = (to.meta as RouteMetaCustom).title || "Fano View";
-	console.log(to);
-	next();
+	const fvToken = Cookies.get("fv_token"); // 服务端：httpOnly: false
+	if ((to.meta as RouteMetaCustom).requiresAuth) {
+		if (!fvToken) {
+			const redirectUrl = generateRedirectUrl();
+			next({
+				path: "/login",
+				query: {
+					redirectUrl,
+				},
+			});
+		} else {
+			next();
+		}
+	} else {
+		next();
+	}
 });
 export default router;
