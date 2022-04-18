@@ -9,11 +9,14 @@ export const chartComponentList = ref<ChartComponentProps[] | null>(null);
 /**
  * @description: 根据图表列表渲染图表组件
  */
-export const renderByList = (componentList: ChartOptionsProps[], prefix: string) => {
+export const renderByList = (
+	componentList: ChartOptionsProps[],
+	prefix: string
+) => {
 	const _chartComponentList: ChartComponentProps[] = [];
 	componentList.forEach((component) => {
 		const chart = new Chart(component, true, prefix);
-		const chartComponent: ChartComponentProps = { chart, id: component.id };
+		const chartComponent: ChartComponentProps = { chart, uid: component.uid };
 		_chartComponentList.push(chartComponent);
 	});
 	chartComponentList.value = _chartComponentList;

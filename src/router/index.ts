@@ -10,6 +10,7 @@ interface RouteMetaCustom extends RouteMeta {
 import Login from "../views/Login.vue";
 import Home from "../views/Home.vue";
 import Editor from "../views/Editor.vue";
+import Canvas from "../views/Canvas.vue";
 import CodeEditor from "../views/ChartEditor.vue";
 import Template from "../views/Template.vue";
 import { generateRedirectUrl } from "../utils/utils";
@@ -34,7 +35,7 @@ const routes = [
 		},
 	},
 	{
-		path: "/template/:id",
+		path: "/template/:uid",
 		name: "template",
 		component: Template,
 		meta: {
@@ -43,12 +44,21 @@ const routes = [
 		},
 	},
 	{
-		path: "/editor/:id/",
+		path: "/editor/:uid/",
 		name: "Editor",
 		component: Editor,
 		meta: {
 			title: "编辑器",
-			requiresAuth: false,
+			requiresAuth: true,
+		},
+	},
+	{
+		path: "/canvas/:uid",
+		name: "Canvas",
+		component: Canvas,
+		meta: {
+			title: "Fano View-Canvas预览",
+			requiresAuth: true,
 		},
 	},
 	{

@@ -1,8 +1,11 @@
 import Chart from "@/lib/chart";
 import { ECharts, EChartsOption } from "echarts";
+export type Pare<T> = {
+	[P in keyof T]?: T[P];
+};
 /* 图表组件实例 */
 export interface ChartComponentProps {
-	id: string;
+	uid: string;
 	chart: Chart;
 }
 /* 编辑器基本样式 */
@@ -14,14 +17,15 @@ export interface EditorStyleProps {
 	customImgBack: boolean;
 }
 /* 图表基础信息定位宽高等样式 */
-export interface StyleOptionProps {
+export type StyleOptionProps = {
 	width: number;
 	height: number;
 	themeColor?: string;
 	background?: string; // rgba
-	left?: number; // default: 0
-	top?: number; // default: 0
-}
+	left: number; // default: 0
+	top: number; // default: 0
+	distLt?: number[]; // default:
+};
 /* 是否开启定时渲染API */
 export interface BaseApiOptionProps {
 	isRefresh: boolean;
@@ -38,7 +42,7 @@ export type ApiOptionProps<T> = T extends boolean
 
 /* 图表配置项：实时渲染需要 */
 export interface ChartOptionsProps {
-	id: string; // 即是图表的id又是Dom的id
+	uid: string; // 即是图表的id又是Dom的id
 	name: string;
 	img: string | null; // 缩略图
 	styleOption: StyleOptionProps;

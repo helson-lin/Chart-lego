@@ -1,20 +1,22 @@
 /* eslint-disable @typescript-eslint/camelcase */
 <template>
-	<div
-		class="editor-core"
-		id="h-ed"
-		:draggable="draggable"
-		:style="editorStyle"
-		@click="canvasClick"
-	>
+	<div class="editor-canvas">
 		<div
-			v-for="component in componentList"
-			:class="['h-dragable']"
-			:key="component.id"
-			:id="component.id"
-			:style="locationStyle(component.styleOption)"
-			@click="chartClick"
-		></div>
+			class="editor-core"
+			id="h-ed"
+			:draggable="draggable"
+			:style="editorStyle"
+			@click="canvasClick"
+		>
+			<div
+				v-for="component in componentList"
+				:class="['h-dragable']"
+				:key="component.uid"
+				:id="component.uid"
+				:style="locationStyle(component.styleOption)"
+				@click="chartClick"
+			></div>
+		</div>
 	</div>
 </template>
 <script lang="ts" setup>
@@ -74,6 +76,7 @@ const editorStyle = computed(() => {
 });
 // 图表组件的位置的大小样式信息
 const locationStyle = (style: StyleOptionProps): { [key: string]: string } => {
+	console.log(style);
 	return {
 		width: `${style.width}px`,
 		height: `${style.height}px`,
@@ -114,9 +117,6 @@ const dragListen = () => {
 			// 保存拖动元素的引用(ref.)
 			if (!event.target) return;
 			const dragge = event.target;
-			//  (dragged as HTMLElement).style.opacity = 0.8;
-			// // 使其半透明
-			// event.target.style.opacity = 0.5;
 		},
 		false
 	);
@@ -140,15 +140,15 @@ const dragListen = () => {
 		false
 	);
 };
-const componentResize = (id: string) => {
+const componentResize = (uid: string) => {
 	console.log("chartComponentList", chartComponentList.value);
 	if (!chartComponentList.value) return;
 	const currentCharts = chartComponentList.value.filter(
-		(item) => item.id === id
+		(item) => item.uid === uid
 	);
 	if (currentCharts.length === 1) {
 		currentCharts[0].chart.resize();
-		console.log("resizeId", id, currentCharts[0].chart);
+		console.log("resizeId", uid, currentCharts[0].chart);
 	}
 };
 // 初始化拖拽插件
@@ -158,6 +158,8 @@ const init = () => {
 	moveable = new Moveable(editorDom, {
 		target: targetElement, // 指定拖拽对象
 		className: "dragable",
+		snapContainer: editorDom,
+		snapThreshold: 20,
 		draggable: true,
 		dragArea: true,
 		resizable: true,
@@ -168,8 +170,8 @@ const init = () => {
 		snapHorizontal: true,
 		snapElement: true,
 		snapGap: true,
-		snapGridHeight: 5,
-		snapGridWidth: 5,
+		snapGridHeight: 10,
+		snapGridWidth: 10,
 		snapDistFormat: (v) => `${v}px`, // 修改举例标识
 		rotatable: false,
 		warpable: false,
@@ -178,13 +180,17 @@ const init = () => {
 		keepRatio: true,
 		edge: true,
 		padding: { left: 0, top: 0, right: 0, bottom: 0 },
+		// bounds: editorDom.getBoundingClientRect(),
+		// innerBounds: editorDom.getBoundingClientRect(),
 		throttleDrag: 0,
 		throttleResize: 0,
 		throttleScale: 0,
 		throttleRotate: 0,
 	});
 	moveable.edgeDraggable = true;
-	const dragableArray = Array.from(document.querySelectorAll(".h-dragable"));
+	const dragableArray: HTMLElement[] = Array.from(
+		document.querySelectorAll(".h-dragable")
+	);
 	dragableArray.push(editorDom);
 	moveable.elementGuidelines = dragableArray;
 	moveable.horizontalGuidelines = [100, 200, 300, 400, 500];
@@ -196,13 +202,20 @@ const init = () => {
 			console.log("onDragStart");
 		})
 		.on("drag", (el) => {
-			const { left, top, transform, target } = el;
-			console.log("onDrag left, top", left, top);
+			const { left, top, transform, target, dist } = el;
+			console.log("onDrag left, top", left, top, el);
 			if (!target) return;
-			store.commit("editor/setComponentTl", { id: target.id, left, top });
+			// 这里的left top 需要计算 才可以用来提交数据
+			const finalPostition: number[] = Object.assign([], dist);
+			console.log("demo", finalPostition);
+			store.commit("editor/setComponentTl", {
+				uid: target.id,
+				left: left,
+				top,
+				distLt: finalPostition,
+			});
 			(target as HTMLElement).style.left = `${left}px`;
 			(target as HTMLElement).style.top = `${top}px`;
-			(target as HTMLElement).style.transform = transform;
 		})
 		.on("dragEnd", ({ target, isDrag, clientX, clientY }) => {
 			console.log("onDragEnd", target, isDrag);
@@ -214,10 +227,10 @@ const init = () => {
 		})
 		.on("resize", (e) => {
 			const { target, width, height, delta } = e;
-			console.log("onResize", target.id, delta[0]);
+			console.log("onResize", target.id, width, height);
 			// 图表缩放
 			componentResize(target.id);
-			store.commit("editor/setCompoentWh", { id: target.id, width, height });
+			store.commit("editor/setCompoentWh", { uid: target.id, width, height });
 			delta[0] && ((target as HTMLElement).style.width = `${width}px`);
 			delta[1] && ((target as HTMLElement).style.height = `${height}px`);
 		})
@@ -292,8 +305,9 @@ const dragDivListener = () => {
 const renderByList = () => {
 	const _chartComponentList: ChartComponentProps[] = [];
 	componentList.value.forEach((component) => {
+		console.warn("渲染", component);
 		const chart = new Chart(component, true);
-		const chartComponent: ChartComponentProps = { chart, id: component.id };
+		const chartComponent: ChartComponentProps = { chart, uid: component.uid };
 		_chartComponentList.push(chartComponent);
 	});
 	chartComponentList.value = _chartComponentList;
@@ -338,6 +352,16 @@ watchEffect(() => {
 });
 </script>
 <style lang="scss" scoped>
+.editor-canvas {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 100%;
+	height: 100%;
+	transform: translate(-50%, -50%);
+	display: flex;
+	justify-content: center;
+}
 .editor-core {
 	width: 100%;
 	height: 100%;

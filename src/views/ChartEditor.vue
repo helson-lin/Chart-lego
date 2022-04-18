@@ -121,7 +121,7 @@ export default {
 				// eslint-disable-next-line @typescript-eslint/camelcase
 				const { uid, name, style_option, api_option, handler } = res.data.data;
 				const data = {
-					id: uid,
+					uid: uid,
 					name,
 					styleOption: JSON.parse(style_option),
 					apiOption: JSON.parse(api_option),

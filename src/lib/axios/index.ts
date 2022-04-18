@@ -1,6 +1,6 @@
 import axios, { Axios, AxiosRequestConfig, AxiosRequestHeaders } from "axios";
 import config from "../../config/index";
-
+import Cookies from "js-cookie";
 interface KeyValueObjProps {
 	[key: string]: string;
 }
@@ -27,7 +27,6 @@ class HttpRequest {
 	constructor(baseUrl: string) {
 		this.baseUrl = baseUrl;
 		this.queue = {};
-		console.log(this.baseUrl);
 	}
 	getInsideConfig(): ConfigProps {
 		const config = {
@@ -48,6 +47,8 @@ class HttpRequest {
 		// 请求拦截
 		instance.interceptors.request.use(
 			(config) => {
+				if (config.headers)
+					config.headers.Authorization = Cookies.get("fv_token") || "";
 				// 添加全局的loading...
 				if (!Object.keys(this.queue).length) {
 					// Spin.show() // 不建议开启，因为界面不友好
@@ -64,6 +65,8 @@ class HttpRequest {
 			(res) => {
 				this.destroy(url);
 				const { data, status } = res;
+				if (res.data.code === 500) console.log("服务器错误");
+				console.log(data, status);
 				return { data, status };
 			},
 			(error) => {

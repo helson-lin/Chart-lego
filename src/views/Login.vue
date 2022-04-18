@@ -62,6 +62,7 @@ const submit = async () => {
 	const res = await login<UserLogin>(username.value, password.value);
 	if (res.data.code === 0) {
 		message.success("登录成功！");
+		// const {user}
 		// 存在重定向URL:重定向
 		const redirectUrl = route.query.redirectUrl || "";
 		if (redirectUrl) {

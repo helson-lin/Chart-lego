@@ -18,7 +18,7 @@ export default {
 	 */
 	baseUrl: {
 		dev: "/api/",
-		pro: "/api/",
+		pro: "http://182.61.138.196:8088/api/",
 	},
 	/**
 	 * @description 默认打开的首页的路由name值，默认为home
@@ -33,4 +33,5 @@ export default {
 			developmentOff: true, // 设为true后在开发环境不会收集错误信息，方便开发中排查错误
 		},
 	},
-}
+	version: "1.0.0",
+};

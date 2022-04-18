@@ -5,7 +5,7 @@ import {
 	StyleOptionProps,
 } from "@/types/chart";
 class Chart {
-	private id: string;
+	private uid: string;
 	private name: string;
 	private prefix: string;
 	private $el: HTMLElement | null = null;
@@ -16,8 +16,8 @@ class Chart {
 	private _options: EChartsOption | null = null;
 	public isDeugger = false;
 	constructor(initOptions: ChartOptionsProps, isDeugger: boolean, prefix = "") {
-		const { id, name, styleOption, apiOption, renderFuc } = initOptions;
-		this.id = id;
+		const { uid, name, styleOption, apiOption, renderFuc } = initOptions;
+		this.uid = uid;
 		this.prefix = prefix;
 		this.name = name;
 		this.styleOption = styleOption;
@@ -29,10 +29,9 @@ class Chart {
 		this.init();
 	}
 	async init() {
-		console.log(this.id);
-		if (!this.id) this.throwError("当前图表id不存在, 无法挂载");
-		const el = window.document.getElementById(this.prefix + this.id);
-		if (!el) this.throwError("当前图表id不存在, 无法挂载");
+		if (!this.uid) this.throwError("当前图表uid不存在, 无法挂载");
+		const el = window.document.getElementById(this.prefix + this.uid);
+		if (!el) this.throwError("当前图表uid不存在, 无法挂载");
 		this.log(`获取Dom: ${el}`);
 		this.$el = el;
 		this._options = await this.renderFuc.bind(this)();

@@ -7,7 +7,7 @@
 		<div
 			class="chart-cop"
 			v-for="chart in chartListData"
-			:key="chart.id"
+			:key="chart.uid"
 			@click="addToEditor(chart)"
 		>
 			<img class="chart-i" :src="chart.img || ''" :alt="chart.name" />
@@ -50,7 +50,7 @@ const getChartList = async () => {
 const addToEditor = (chart: ChartOptionsProps) => {
 	const newComponetList = componentList.value || [];
 	const chartWidthPosition = Object.assign({}, chart);
-	chartWidthPosition.id = uuidv4(); // 新的id
+	chartWidthPosition.uid = uuidv4(); // 新的id
 	newComponetList.push(chartWidthPosition);
 	store.commit("editor/setComponent", newComponetList);
 	console.log(chart, "新增编辑器", chartWidthPosition);

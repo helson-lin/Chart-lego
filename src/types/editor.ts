@@ -1,5 +1,5 @@
 export interface ListItemProps {
-	id: string;
+	uid: string;
 	url: string;
 }
 /* 编辑器基本样式 */

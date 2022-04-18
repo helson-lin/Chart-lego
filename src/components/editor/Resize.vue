@@ -82,6 +82,9 @@ onMounted(() => {
 <style lang="scss" scoped>
 .resize {
 	display: flex;
+	background: rgba(255, 255, 255, 1);
+	padding: 5px;
+	backdrop-filter: blur(12px);
 	.ico {
 		width: 30px;
 		text-align: center;
@@ -117,7 +120,8 @@ onMounted(() => {
 		span {
 			line-height: 30px;
 			text-align: right;
-			font-size: 18px;
+			font-size: 16px;
+			font-weight: bold;
 			color: #000;
 			font-family: Arial, Helvetica, sans-serif;
 		}

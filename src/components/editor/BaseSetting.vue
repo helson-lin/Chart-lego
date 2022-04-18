@@ -32,11 +32,6 @@
 				</div>
 				<div class="upload">
 					<div class="upload-box" v-show="editorSetting.customImgBack">
-						<!-- <img
-							style="200px;height:90px"
-							v-if="editorSetting.imgUrl"
-							:src="editorSetting.imgUrl"
-						/> -->
 						<a-upload-dragger
 							v-model:fileList="fileList"
 							name="file"
@@ -44,7 +39,6 @@
 							:multiple="true"
 							:action="fileUploadUrl"
 							@change="handleChange"
-							@drop="handleDrop"
 							@remove="remove"
 						>
 							<div class="upload-inline" v-if="!editorSetting.imgUrl">
@@ -142,9 +136,7 @@
 				</div>
 			</a-collapse-panel>
 		</a-collapse>
-		<div class="btns">
-			<a-button type="primary" @click="getLoction">获取定位</a-button>
-		</div>
+		<div class="btns"></div>
 	</div>
 </template>
 <script lang="ts" setup>
@@ -170,7 +162,7 @@ const editingChart = computed(() => {
 	const editingChartId: string = store.state.editor.editingComponentId;
 	const chartList: ChartOptionsProps[] | null = store.state.editor.component;
 	if (!chartList) return null;
-	const componet = chartList.filter((item) => item.id === editingChartId);
+	const componet = chartList.filter((item) => item.uid === editingChartId);
 	if (componet && componet.length === 1) {
 		return componet[0];
 	} else {
@@ -196,14 +188,10 @@ const gradientColor = ref(
 	"linear-gradient(0deg, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 100%)"
 );
 const handleChange = ({ file }) => {
-	console.log(file, "文件上传", "handleChange");
 	if (file.status === "done") {
 		const url = file.response.data.url;
 		store.commit("editor/setStyle", { ...editorSetting.value, imgUrl: url });
 	}
-};
-const handleDrop = (e) => {
-	console.log(e, "文件上传12", "handleDrop");
 };
 const getLoction = () => {
 	const componentBox: HTMLElement | null = document.getElementById("h-ed");
@@ -214,7 +202,7 @@ const getLoction = () => {
 		const { id } = componentList[i];
 		const { left, top, width, height } = getComputedStyle(componentList[i]);
 		componentListPos.push({
-			id,
+			uid: id,
 			left: Number(left.replace("px", "")),
 			top: Number(top.replace("px", "")),
 			width: Number(width.replace("px", "")),
@@ -224,7 +212,6 @@ const getLoction = () => {
 	console.log("定位", "handleDrop", componentListPos);
 };
 const change = (color: string) => {
-	console.log(color, editorSetting.value.background);
 	store.commit("editor/setStyle", {
 		...editorSetting.value,
 		background: color,

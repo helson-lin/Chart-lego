@@ -1,4 +1,5 @@
 import parse from "url-parse";
+import { ChartOptionsProps } from "@/types/chart";
 /**
  * @description: 获取本地cookie
  * @param {string} sName cookie的名称
@@ -24,7 +25,7 @@ export function generateRedirectUrl() {
 }
 /**
  * @description: 解析重定向URL参数
- * @return {query: any;pathname: string;}
+ * @return {query: any;pathname: }
  */
 export function analysisRedirectUrl(url: string): {
 	query: any;
@@ -36,4 +37,40 @@ export function analysisRedirectUrl(url: string): {
 		query: parsed.query,
 		pathname: parsed.pathname,
 	};
+}
+function objectToString(obj: { [key: string]: any }): string {
+	const keys = Object.keys(obj);
+	let str = "{";
+	keys.forEach((key) => {
+		if (typeof obj[key] !== "object") {
+			str += `${key}:${obj[key]},`;
+		} else {
+			const objectType = Object.prototype.toString.call(obj[key]);
+			if (objectType === "[object Object]") {
+				str += `${key}:${objectToString(obj[key])},`;
+			} else if (objectType === "[object Function]") {
+				str += `${key}:${obj[key] + ""},`;
+			}
+		}
+	});
+	return str + "}";
+}
+
+export function stringifyChartComponent(
+	chartList: ChartOptionsProps[] | null
+): string {
+	if (!chartList) return "";
+	const chartListWithStr = chartList.map((chart) => {
+		const { uid, name, img, styleOption, apiOption, renderFuc } = chart;
+		const chartWidthRenderStr = {
+			uid,
+			name,
+			img,
+			styleOption: JSON.stringify(styleOption),
+			apiOption: JSON.stringify(apiOption),
+			renderFuc: renderFuc + "",
+		};
+		return chartWidthRenderStr;
+	});
+	return JSON.stringify(chartListWithStr);
 }

@@ -27,7 +27,7 @@ const formatterChartOption = (data: ApiChartOption): ChartOptionsProps => {
 	// eslint-disable-next-line @typescript-eslint/camelcase
 	const { uid, name, style_option, api_option, handler, img } = data;
 	return {
-		id: uid,
+		uid,
 		name,
 		styleOption: JSON.parse(style_option),
 		apiOption: JSON.parse(api_option),
