@@ -12,8 +12,8 @@
 		}}</span>
 	</div>
 </template>
-<script lang="ts" setup>
-import { ref, defineProps, defineEmits } from "vue";
+<script setup lang="ts">
+import { defineProps, defineEmits } from "vue";
 interface Props {
 	checkedTxt: string;
 	unCheckedTxt: string;

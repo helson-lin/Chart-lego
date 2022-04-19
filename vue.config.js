@@ -1,8 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const path = require("path");
-function resolve(dir) {
-	return path.join(__dirname, dir);
-}
 module.exports = {
 	publicPath: "/",
 	productionSourceMap: false,
@@ -26,7 +21,7 @@ module.exports = {
 			.rule("images")
 			.use("url-loader")
 			.loader("url-loader")
-			.tap((options) => Object.assign(options, { limit: 100000 }));
+			.tap((options) => Object.assign(options, { limit: 4000 }));
 	},
 	css: {
 		loaderOptions: {

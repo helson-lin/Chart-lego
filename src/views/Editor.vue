@@ -32,8 +32,9 @@
 		</Header>
 		<div class="editor-cc">
 			<div :class="['editor-cc-l', isOpenMenuBar ? 'open' : 'close']">
-				<slider-bar />
-				<ChartList :list="ChartList" />
+				<slider-bar v-model:index="compoentTypeIndex" />
+				<ChartList :list="ChartList" v-show="compoentTypeIndex === 0" />
+				<DecoratorList v-show="compoentTypeIndex === 1" />
 				<div class="tool-bar-ico" @click="closeOrOpenMenu">
 					<left-circle-filled v-if="isOpenMenuBar" />
 					<right-circle-filled v-else />
@@ -72,6 +73,7 @@ import Input from "../components/common/Input.vue";
 import BaseSetting from "../components/editor/BaseSetting.vue";
 import SliderBar from "../components/editor/SliderBar.vue";
 import ChartList from "../components/editor/ChartList.vue";
+import DecoratorList from "../components/editor/DecoratorList.vue";
 import { EditorCavansProps } from "../store/editor";
 import { addCanvas } from "../interface/canvas";
 import { stringifyChartComponent } from "../utils/utils";
@@ -89,10 +91,12 @@ export default {
 		LeftCircleFilled,
 		RightCircleFilled,
 		ChartList,
+		DecoratorList,
 		CloudDownloadOutlined,
 		DownloadOutlined,
 		Resize,
 		Input,
+		SliderBar,
 	},
 	setup() {
 		const route = useRoute();
@@ -101,6 +105,7 @@ export default {
 		const defaultList = ref([]);
 		const isOpenToolBar = ref(true);
 		const isOpenMenuBar = ref(true);
+		const compoentTypeIndex = ref(0);
 		const closeOrOpenTool = () => {
 			isOpenToolBar.value = !isOpenToolBar.value;
 		};
@@ -173,7 +178,6 @@ export default {
 			// uid已路由地址为主
 			const uid = route.params.uid;
 			const editorUid = store.getters["editor/getUid"];
-			console.log(uid, editorUid);
 			if (uid && uid !== editorUid) {
 				store.commit("editor/setEditorUid", uid);
 			}
@@ -183,6 +187,7 @@ export default {
 			isOpenToolBar,
 			isOpenMenuBar,
 			canvasName,
+			compoentTypeIndex,
 			closeOrOpenTool,
 			closeOrOpenMenu,
 			saveEditCanvas,
@@ -246,6 +251,7 @@ export default {
 		}
 	}
 	&-l {
+		display: flex;
 		box-shadow: 10px 15px 40px 0px rgba(55, 79, 226, 0.1);
 		.tool-bar-ico {
 			left: 280px;

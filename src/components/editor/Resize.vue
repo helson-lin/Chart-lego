@@ -97,7 +97,7 @@ onMounted(() => {
 		&.d {
 			&:hover {
 				background-color: var(--dhc);
-				border-radius: 10px;
+				border-radius: 5px;
 			}
 		}
 		&.i {

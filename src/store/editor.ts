@@ -1,10 +1,17 @@
 import { Module } from "vuex";
 import { ChartOptionsProps } from "@/types/chart";
+import { DecoratorOptionProps } from "@/types/decorator";
 import { GloablDataProps } from "./index";
 import { v4 as uuidv4 } from "uuid";
 import { EditorStyleProps } from "@/types/editor";
 
 export type CutomChartOption = {};
+export interface DecoratorStyleOptionsWidthType extends DecoratorOptionProps {
+	type: "decorator";
+}
+export interface ChartOptionsPropsWidthType extends ChartOptionsProps {
+	type: "chart";
+}
 export interface EditorStoreProps {
 	props: { [key: string]: string };
 	uid: string;

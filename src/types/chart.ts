@@ -1,5 +1,4 @@
 import Chart from "@/lib/chart";
-import { ECharts, EChartsOption } from "echarts";
 export type Pare<T> = {
 	[P in keyof T]?: T[P];
 };

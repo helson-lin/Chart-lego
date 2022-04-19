@@ -342,6 +342,7 @@ onMounted(() => {
 	dragListen();
 });
 // 实时渲染组件列表： 重复渲染问题存在
+// 不同类型组件，走不同渲染方法
 watchEffect(() => {
 	if (componentList.value && componentList.value.length) {
 		instance?.proxy?.$nextTick(() => {

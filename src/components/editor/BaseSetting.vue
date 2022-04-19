@@ -35,7 +35,6 @@
 						<a-upload-dragger
 							v-model:fileList="fileList"
 							name="file"
-							:headers="headers"
 							:multiple="true"
 							:action="fileUploadUrl"
 							@change="handleChange"
@@ -170,12 +169,6 @@ const editingChart = computed(() => {
 	}
 });
 const color = ref("#ffffff");
-const headers = computed(() => {
-	return {
-		authorization: localStorage.getItem("token"),
-		Cookie: "token=" + localStorage.getItem("token"),
-	};
-});
 const fileUploadUrl = computed(() => {
 	const env = process.env.NODE_ENV === "development" ? "dev" : "pro";
 	return (

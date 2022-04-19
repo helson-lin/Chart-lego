@@ -65,8 +65,7 @@ class HttpRequest {
 			(res) => {
 				this.destroy(url);
 				const { data, status } = res;
-				if (res.data.code === 500) console.log("服务器错误");
-				console.log(data, status);
+				if (status === 500) console.error("服务器错误");
 				return { data, status };
 			},
 			(error) => {
