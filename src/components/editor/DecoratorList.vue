@@ -8,22 +8,20 @@
 			@click="addDecorator(decorator)"
 			@dragstart="drag"
 		>
-			{{ decorator }}
+			{{ decorator.name }}
 		</div>
 	</div>
 </template>
 <script lang="ts" setup>
+import { DecoratorOptionProps } from "@/types/decorator";
 import { v4 as uuidv4 } from "uuid";
 import { onMounted, ref } from "vue";
 import { useStore } from "vuex";
 import { getComponetsName } from "../decorator/index";
-const decoratorList = ref<string[]>([]);
+const decoratorList = ref<DecoratorOptionProps[]>([]);
 const store = useStore();
-const addDecorator = (decoratorName: string) => {
-	store.commit("editor/addDecorator", {
-		name: decoratorName,
-		uid: uuidv4(),
-	});
+const addDecorator = (decorator: DecoratorOptionProps) => {
+	store.commit("editor/addDecorator", { ...decorator, uid: uuidv4() });
 };
 const drag = (e: DragEvent) => {
 	const el = e.target;

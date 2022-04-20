@@ -6,19 +6,24 @@ import { v4 as uuidv4 } from "uuid";
 import { EditorStyleProps } from "@/types/editor";
 
 export type CutomChartOption = {};
-export interface DecoratorStyleOptionsWidthType extends DecoratorOptionProps {
+export interface DecoratorOptionsWidthType extends DecoratorOptionProps {
 	type: "decorator";
 }
 export interface ChartOptionsPropsWidthType extends ChartOptionsProps {
 	type: "chart";
 }
+export type ComponetTypeOptions =
+	| DecoratorOptionsWidthType
+	| ChartOptionsPropsWidthType;
 export interface EditorStoreProps {
 	uid: string;
 	name: string;
 	style: EditorStyleProps;
+	components?: ComponetTypeOptions[]; // for the monent
 	component: ChartOptionsProps[];
 	decorators: DecoratorOptionProps[];
 	editingComponentId: string | null;
+	editingComponentType: string | null;
 }
 export interface EditorCavansProps {
 	uid: string;
@@ -49,9 +54,10 @@ export const testComponents: EditorStoreProps = {
 	uid: uuidv4(),
 	name: "",
 	style: defaultStyle,
-	component: [],
-	decorators: [],
+	component: [], // 图表组件
+	decorators: [], // 装饰器组件
 	editingComponentId: null,
+	editingComponentType: null,
 };
 const editor: Module<EditorStoreProps, GloablDataProps> = {
 	namespaced: true,
@@ -78,8 +84,10 @@ const editor: Module<EditorStoreProps, GloablDataProps> = {
 		addDecorator(state, decorator: DecoratorOptionProps) {
 			state.decorators.push(decorator);
 		},
-		setEditingComponent(state, id: string | null) {
+		setEditingComponent(state, playload) {
+			const { id, type } = playload;
 			state.editingComponentId = id;
+			state.editingComponentType = type;
 		},
 		addComponent(state, compoent: ChartOptionsProps) {
 			if (!state.component) return;

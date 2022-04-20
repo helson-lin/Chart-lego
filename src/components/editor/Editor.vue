@@ -7,6 +7,7 @@
 			:draggable="draggable"
 			:style="editorStyle"
 			@click="canvasClick"
+			@contextmenu.prevent
 			@drop="drop"
 			@dragover="dragover"
 			@dragenter="dragenter"
@@ -14,12 +15,24 @@
 		>
 			<div
 				v-for="component in componentList"
-				:class="['h-dragable']"
+				:class="['h-dragable', 'h-chart']"
 				:key="component.uid"
 				:id="component.uid"
 				:style="locationStyle(component.styleOption)"
+				@contextmenu.prevent="openMenu($event, item)"
 				@click="chartClick"
 			></div>
+			<component
+				v-for="decorator in decoratorList"
+				:key="decorator.uid"
+				:id="decorator.uid"
+				:class="['h-dragable']"
+				v-model:value="decorator.value"
+				:style="decoratorStyle(decorator.styleOption)"
+				:is="decorator.name"
+				@contextmenu.prevent="openMenu($event, decorator.uid)"
+				@click="chartClick($event, 'decorator')"
+			></component>
 		</div>
 	</div>
 </template>
@@ -33,16 +46,19 @@ import {
 	watchEffect,
 	ref,
 } from "vue";
+import ContextMenu from "./ContextMenu.vue";
 import Moveable from "moveable";
-import Chart from "@/lib/chart";
+import { useStore } from "vuex";
+import { DragNodeEvent } from "ant-design-vue/lib/vc-tree/interface";
+import { decoratorsRender } from "../decorator/index";
 import {
 	ChartOptionsProps,
 	StyleOptionProps,
 	ChartComponentProps,
 } from "@/types/chart";
+import Chart from "@/lib/chart";
 import { EditorStyleProps } from "@/types/editor";
-import { useStore } from "vuex";
-import { DragNodeEvent } from "ant-design-vue/lib/vc-tree/interface";
+import { DecoratorOptionProps, DecoratorStyleOptions } from "@/types/decorator";
 export interface ListItemProps {
 	id: string;
 	url: string;
@@ -59,9 +75,16 @@ const chartComponentList = ref<ChartComponentProps[] | null>(null);
 const editorSettingStyle = computed<EditorStyleProps>(() => {
 	return store.state.editor.style;
 });
+const menuTo = ref("#h-ed");
 const componentList = computed<ChartOptionsProps[]>(() => {
 	return store.state.editor.component;
 });
+const decoratorList = computed<DecoratorOptionProps[]>(() => {
+	return store.state.editor.decorators;
+});
+const openMenu = (e: Event, id: string) => {
+	menuTo.value = "#" + id;
+};
 // 编辑器style 实时修改
 const editorStyle = computed(() => {
 	const baseStyle = {
@@ -88,6 +111,26 @@ const locationStyle = (style: StyleOptionProps): { [key: string]: string } => {
 		top: `${style.top}px`,
 		position: "absoulute",
 	};
+};
+const decoratorStyle = (options: DecoratorStyleOptions) => {
+	if (!options) return {};
+	const style: { [key: string]: string | number } = {
+		// width: `${options.width}px`,
+		// height: `${options.height}px`,
+	};
+	if (options.color) {
+		style.color = options.color;
+	}
+	if (options.zIndex) {
+		style.zIndex = options.zIndex;
+	}
+	if (options.font) {
+		const { fontSize, fontFamily, fontWeight } = options.font;
+		if (fontSize) style.fontSize = `${fontSize}px`;
+		if (fontFamily) style.fontFamily = fontFamily;
+		if (fontWeight) style.fontWeight = fontWeight;
+	}
+	return style;
 };
 // 监听编辑器拖拽
 const dragListen = () => {
@@ -265,13 +308,13 @@ const judegNodeIsDragable = (e: HTMLElement): HTMLElement => {
 		return judegNodeIsDragable(e.parentElement);
 	}
 };
-const chartClick = (e: Event) => {
+const chartClick = (e: Event, type = "chart") => {
 	const el = e.target as HTMLElement;
 	const targetDom = judegNodeIsDragable(el);
-	console.log(targetDom, "targetDom");
 	if ((targetElement && targetElement === targetDom) || !targetDom) return;
 	targetElement = targetDom;
-	store.commit("editor/setEditingComponent", el.id);
+	console.warn("chartClick", targetElement.id, type);
+	store.commit("editor/setEditingComponent", { id: targetElement.id, type });
 	if (moveable) {
 		moveable.destroy();
 	}
@@ -280,9 +323,8 @@ const chartClick = (e: Event) => {
 const canvasClick = (e: Event) => {
 	const el = e.target as HTMLElement;
 	if (el.classList.value.indexOf("editor-core") !== -1) {
-		console.warn("出现");
 		if (moveable) {
-			store.commit("editor/setEditingComponent", null);
+			store.commit("editor/setEditingComponent", { id: null, type: null });
 			targetElement = null;
 			moveable.destroy();
 			moveable = null;
@@ -353,7 +395,7 @@ const dragenter = (e: DragEvent) => {
 	const el = e.target;
 	(el as HTMLElement).className += " drag-over";
 	// this.className += " drag-over";
-	console.log("dragenter");
+	console.log("dragenter", el);
 };
 const dragleave = (e: DragEvent) => {
 	const el = e.target;
@@ -365,7 +407,7 @@ const dragleave = (e: DragEvent) => {
 };
 const dragover = (e: DragEvent) => {
 	e.preventDefault();
-	console.log("dragover");
+	console.log("dragover", e.target);
 };
 onMounted(() => {
 	keyBoard();
@@ -411,13 +453,13 @@ watchEffect(() => {
 	}
 }
 .h-dragable {
-	width: 400px;
-	height: 300px;
-	background: #c6a6f3;
-	background: rgba(106, 106, 106, 0.05);
 	backdrop-filter: blur(12px);
 	position: absolute;
 	cursor: pointer;
+	&.h-chart {
+		width: 400px;
+		height: 300px;
+	}
 	:deep() div {
 		pointer-events: none !important;
 	}

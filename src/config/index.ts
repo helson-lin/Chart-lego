@@ -16,5 +16,8 @@ export default {
 		dev: "/api/",
 		pro: "http://182.61.138.196:8088/api/",
 	},
+	/**
+	 * @description 版本信息
+	 */
 	version: "1.0.0",
 };

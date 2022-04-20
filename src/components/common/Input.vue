@@ -4,7 +4,12 @@
 		:data-subfix="subfix"
 		:style="{ '--show': !subfix ? 'none' : 'inline-block' }"
 	>
-		<input v-bind="$attrs" :value="data" @change="emitChange" />
+		<input
+			v-bind="$attrs"
+			:value="data"
+			@change="emitChange"
+			@input="emitChange"
+		/>
 	</div>
 </template>
 <script lang="ts" setup>

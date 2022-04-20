@@ -16,14 +16,20 @@ export interface Font {
 export interface DecoratorStyleOptions {
 	width: number;
 	height: number;
+	top: number;
+	left: number;
 	color?: string;
+	zIndex?: 1 | 2 | 3;
 	font?: Font;
 }
 export interface Decorator {
 	styleOption?: DecoratorStyleOptions;
 }
 
-export interface DecoratorOptionProps extends Decorator {
+export interface DecoratorOptionProps {
 	uid: string; // 即是图表的id又是Dom的id
 	name?: string;
+	type: string;
+	value?: string | number | boolean; // 图表的值
+	styleOption?: DecoratorStyleOptions;
 }

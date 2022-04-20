@@ -1,4 +1,5 @@
 import parse from "url-parse";
+import { Component, createApp } from "vue";
 import { ChartOptionsProps } from "@/types/chart";
 /**
  * @description: 获取本地cookie
@@ -38,24 +39,11 @@ export function analysisRedirectUrl(url: string): {
 		pathname: parsed.pathname,
 	};
 }
-function objectToString(obj: { [key: string]: any }): string {
-	const keys = Object.keys(obj);
-	let str = "{";
-	keys.forEach((key) => {
-		if (typeof obj[key] !== "object") {
-			str += `${key}:${obj[key]},`;
-		} else {
-			const objectType = Object.prototype.toString.call(obj[key]);
-			if (objectType === "[object Object]") {
-				str += `${key}:${objectToString(obj[key])},`;
-			} else if (objectType === "[object Function]") {
-				str += `${key}:${obj[key] + ""},`;
-			}
-		}
-	});
-	return str + "}";
-}
 
+/**
+ * @description: 图表组件转换为string
+ * @param {chartList} 图表
+ */
 export function stringifyChartComponent(
 	chartList: ChartOptionsProps[] | null
 ): string {
@@ -73,4 +61,26 @@ export function stringifyChartComponent(
 		return chartWidthRenderStr;
 	});
 	return JSON.stringify(chartListWithStr);
+}
+
+/**
+ * @description: 创建挂载组件
+ * @param {id} 挂载组件的父级的id
+ * @param {vue} 组件
+ * @param {option}  组件Props
+ */
+export function createAndMountTemplate(
+	id: string,
+	vue: Component,
+	option?: { [key: string]: string }
+) {
+	let component;
+	if (!option) {
+		component = createApp(vue);
+	} else {
+		component = createApp(vue, option);
+	}
+	const mountDom = document.getElementById(id);
+	if (!mountDom) throw new Error("will mount id dom can't be find");
+	component.mount(mountDom);
 }
