@@ -1,6 +1,6 @@
 import { Module } from "vuex";
 import { ChartOptionsProps } from "@/types/chart";
-import { DecoratorOptionProps } from "@/types/decorator";
+import { DecoratorOptionProps, Decorator } from "@/types/decorator";
 import { GloablDataProps } from "./index";
 import { v4 as uuidv4 } from "uuid";
 import { EditorStyleProps } from "@/types/editor";
@@ -13,11 +13,11 @@ export interface ChartOptionsPropsWidthType extends ChartOptionsProps {
 	type: "chart";
 }
 export interface EditorStoreProps {
-	props: { [key: string]: string };
 	uid: string;
 	name: string;
 	style: EditorStyleProps;
-	component: ChartOptionsProps[] | null;
+	component: ChartOptionsProps[];
+	decorators: DecoratorOptionProps[];
 	editingComponentId: string | null;
 }
 export interface EditorCavansProps {
@@ -48,9 +48,9 @@ const defaultStyle: EditorStyleProps = {
 export const testComponents: EditorStoreProps = {
 	uid: uuidv4(),
 	name: "",
-	props: {},
 	style: defaultStyle,
-	component: null,
+	component: [],
+	decorators: [],
 	editingComponentId: null,
 };
 const editor: Module<EditorStoreProps, GloablDataProps> = {
@@ -62,22 +62,6 @@ const editor: Module<EditorStoreProps, GloablDataProps> = {
 		},
 		getEditor(state: EditorStoreProps): EditorCavansProps {
 			const { uid, name, style, component } = state;
-			// let componentWidthHandedLT = Object.assign(
-			// 	[],
-			// 	component
-			// ) as ChartOptionsProps[];
-			// if (componentWidthHandedLT) {
-			// 	// as ChartOptionsProps[]
-			// 	componentWidthHandedLT = componentWidthHandedLT.map((item) => {
-			// 		const newObj = Object.assign({}, item);
-			// 		if (item.styleOption.distLt) {
-			// 			newObj.styleOption.top += item.styleOption.distLt[1];
-			// 			newObj.styleOption.left += item.styleOption.distLt[0];
-			// 			delete newObj.styleOption.distLt;
-			// 		}
-			// 		return newObj;
-			// 	});
-			// }
 			return { uid, name, style, component };
 		},
 	},
@@ -87,6 +71,12 @@ const editor: Module<EditorStoreProps, GloablDataProps> = {
 		},
 		setComponent(state, list) {
 			state.component = list;
+		},
+		setDecorator(state, list) {
+			state.decorators = list;
+		},
+		addDecorator(state, decorator: DecoratorOptionProps) {
+			state.decorators.push(decorator);
 		},
 		setEditingComponent(state, id: string | null) {
 			state.editingComponentId = id;

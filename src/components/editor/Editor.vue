@@ -7,6 +7,10 @@
 			:draggable="draggable"
 			:style="editorStyle"
 			@click="canvasClick"
+			@drop="drop"
+			@dragover="dragover"
+			@dragenter="dragenter"
+			@dragleave="dragleave"
 		>
 			<div
 				v-for="component in componentList"
@@ -337,6 +341,32 @@ const keyBoard = () => {
 	window.addEventListener("keydown", keydown, false);
 	window.addEventListener("keyup", keyup, false);
 };
+const drop = (e: DropEvent) => {
+	const el = e.target;
+	(el as HTMLElement).className = (el as HTMLElement).className.replace(
+		" drag-over",
+		""
+	);
+};
+const dragenter = (e: DragEvent) => {
+	e.preventDefault();
+	const el = e.target;
+	(el as HTMLElement).className += " drag-over";
+	// this.className += " drag-over";
+	console.log("dragenter");
+};
+const dragleave = (e: DragEvent) => {
+	const el = e.target;
+	(el as HTMLElement).className = (el as HTMLElement).className.replace(
+		" drag-over",
+		""
+	);
+	console.log("dragleave");
+};
+const dragover = (e: DragEvent) => {
+	e.preventDefault();
+	console.log("dragover");
+};
 onMounted(() => {
 	keyBoard();
 	dragListen();
@@ -373,6 +403,9 @@ watchEffect(() => {
 	box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
 	transform-origin: 50% 20%;
 	overflow: hidden;
+	&.drag-over {
+		border: 2px dashed rgba(24, 144, 255, 0.7) !important;
+	}
 	:deep() .moveable-area {
 		cursor: grabbing;
 	}

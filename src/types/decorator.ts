@@ -20,10 +20,10 @@ export interface DecoratorStyleOptions {
 	font?: Font;
 }
 export interface Decorator {
-	styleOption: DecoratorStyleOptions;
+	styleOption?: DecoratorStyleOptions;
 }
 
 export interface DecoratorOptionProps extends Decorator {
 	uid: string; // 即是图表的id又是Dom的id
-	name: string;
+	name?: string;
 }

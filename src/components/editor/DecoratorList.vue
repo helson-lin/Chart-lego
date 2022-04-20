@@ -1,14 +1,34 @@
 <template>
 	<div class="decorator-list">
-		<div class="decorator" v-for="decorator in decoratorList" :key="decorator">
+		<div
+			class="decorator"
+			draggable="true"
+			v-for="decorator in decoratorList"
+			:key="decorator"
+			@click="addDecorator(decorator)"
+			@dragstart="drag"
+		>
 			{{ decorator }}
 		</div>
 	</div>
 </template>
 <script lang="ts" setup>
+import { v4 as uuidv4 } from "uuid";
 import { onMounted, ref } from "vue";
+import { useStore } from "vuex";
 import { getComponetsName } from "../decorator/index";
 const decoratorList = ref<string[]>([]);
+const store = useStore();
+const addDecorator = (decoratorName: string) => {
+	store.commit("editor/addDecorator", {
+		name: decoratorName,
+		uid: uuidv4(),
+	});
+};
+const drag = (e: DragEvent) => {
+	const el = e.target;
+	(el as HTMLElement).className += " draging";
+};
 onMounted(() => {
 	decoratorList.value = getComponetsName();
 });
@@ -38,6 +58,9 @@ onMounted(() => {
 		font-weight: 400;
 		background-color: rgba($color: $color-primary, $alpha: 0.2);
 		cursor: pointer;
+		&.draging {
+			cursor: grabbing;
+		}
 	}
 }
 </style>

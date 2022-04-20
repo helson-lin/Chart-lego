@@ -1,18 +1,28 @@
 <template>
 	<div class="fv-text" :style="computedsSyle">
-		{{ value || defaultValue }}
+		{{ value }}
 	</div>
 </template>
 <script lang="ts" setup>
-import { defineProps, computed } from "vue";
+import { defineProps, widthDefaults, computed } from "vue";
 import { Decorator, Font } from "@/types/decorator";
 import { isValidKey } from "@/types/utils";
 export interface FvTextProps {
 	value: string;
 	option: Decorator;
 }
-const defaultValue = "FV_TEXT";
-const props = defineProps<FvTextProps>();
+widthDefaults(defineProps<FvTextProps>(), {
+	value: "FV_TEXT",
+	option: () => {
+		return {
+			styleOption: {
+				width: 300,
+				height: 140,
+			},
+		};
+	},
+});
+// const props = defineProps<FvTextProps>();
 const computedsSyle = computed(() => {
 	const { styleOption } = props.option;
 	const { width, height, font, color } = styleOption;

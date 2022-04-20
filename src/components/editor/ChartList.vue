@@ -80,7 +80,7 @@ onMounted(() => {
 }
 .chart-cop {
 	width: 100%;
-	min-height: 160px;
+	min-height: 140px;
 	overflow-y: hidden;
 	margin-bottom: 20px;
 	pointer-events: none;
