@@ -1,14 +1,18 @@
 <template>
-	<teleport to="#demo2123">
-		<div class="context-menu">
+	<div>
+		<teleport :to="to">
+			<div class="test">NEROSOO</div>
+			<!-- <div class="context-menu">
 			<div class="menu" v-for="menu in contextMenu" :key="menu.id">
 				{{ menu.label }}
 			</div>
-		</div>
-	</teleport>
+		</div> -->
+		</teleport>
+	</div>
 </template>
 <script lang="ts" setup>
-import { ref } from "vue";
+import { ref, defineProps } from "vue";
+defineProps<{ to: string }>();
 const contextMenu = ref([
 	{
 		id: "del",
@@ -34,8 +38,14 @@ const contextMenu = ref([
 	background-color: #f23;
 	text-align: center;
 	line-height: 30px;
-	font-size: 14px;
+	font-size: 22px;
 	color: $color-black;
 	z-index: 2220;
+}
+.test {
+	position: absolute;
+	z-index: 29;
+	color: #333;
+	font-size: 22px;
 }
 </style>

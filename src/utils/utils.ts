@@ -1,6 +1,6 @@
 import parse from "url-parse";
 import { Component, createApp } from "vue";
-import { ChartOptionsProps } from "@/types/chart";
+import { FvComponentBase } from "@/types/editor";
 /**
  * @description: 获取本地cookie
  * @param {string} sName cookie的名称
@@ -45,20 +45,34 @@ export function analysisRedirectUrl(url: string): {
  * @param {chartList} 图表
  */
 export function stringifyChartComponent(
-	chartList: ChartOptionsProps[] | null
+	componentList: FvComponentBase[] | null
 ): string {
-	if (!chartList) return "";
-	const chartListWithStr = chartList.map((chart) => {
-		const { uid, name, img, styleOption, apiOption, renderFuc } = chart;
-		const chartWidthRenderStr = {
-			uid,
-			name,
-			img,
-			styleOption: JSON.stringify(styleOption),
-			apiOption: JSON.stringify(apiOption),
-			renderFuc: renderFuc + "",
-		};
-		return chartWidthRenderStr;
+	if (!componentList) return "";
+	const chartListWithStr = componentList.map((component) => {
+		const { uid, name, img, type, styleOption, apiOption, renderFuc } =
+			component;
+		let componentWidthRenderStr;
+		console.log("chart", component);
+		if (type === "chart") {
+			componentWidthRenderStr = {
+				uid,
+				name,
+				img,
+				type,
+				styleOption: JSON.stringify(styleOption),
+				apiOption: JSON.stringify(apiOption),
+				renderFuc: renderFuc + "",
+			};
+		} else {
+			componentWidthRenderStr = {
+				uid,
+				name,
+				img,
+				type,
+				styleOption: JSON.stringify(styleOption),
+			};
+		}
+		return componentWidthRenderStr;
 	});
 	return JSON.stringify(chartListWithStr);
 }

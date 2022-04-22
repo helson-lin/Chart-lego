@@ -66,14 +66,14 @@
 			class="bs"
 			v-model:activeKey="chartSetting"
 			:ghost="true"
-			v-if="editingChartId && editingComponentType === 'chart'"
+			v-if="editingComponentId && editingComponentType === 'chart'"
 		>
 			<a-collapse-panel key="0" header="图表设置">
 				<div class="option-item wh">
 					<div class="option-label">图表尺寸</div>
 					<div class="option-value">
 						<Input
-							v-model:data="editingChart.styleOption.width"
+							v-model:data="editingComponent.styleOption.width"
 							type="number"
 							disabled
 							placeholder="宽度"
@@ -81,7 +81,7 @@
 						/>
 						<Input
 							disabled
-							v-model:data="editingChart.styleOption.height"
+							v-model:data="editingComponent.styleOption.height"
 							type="number"
 							subfix="高"
 						/>
@@ -91,7 +91,7 @@
 					<div class="option-label">图表定位</div>
 					<div class="option-value">
 						<Input
-							v-model:data="editingChart.styleOption.top"
+							v-model:data="editingComponent.styleOption.top"
 							disabled
 							type="number"
 							placeholder="上间距"
@@ -99,7 +99,7 @@
 						/>
 						<Input
 							disabled
-							v-model:data="editingChart.styleOption.left"
+							v-model:data="editingComponent.styleOption.left"
 							type="number"
 							placeholder="左间距"
 							subfix="左"
@@ -110,7 +110,7 @@
 					<div class="option-label">主题色</div>
 					<div class="option-value picker">
 						<color-picker
-							v-model:pureColor="editingChart.styleOption.themeColor"
+							v-model:pureColor="editingComponent.styleOption.themeColor"
 							v-model:gradientColor="gradientColor"
 						/>
 					</div>
@@ -120,13 +120,13 @@
 					<div class="option-value">
 						<Input
 							style="width: 100%"
-							v-model:data="editingChart.apiOption.url"
+							v-model:data="editingComponent.apiOption.url"
 							type="text"
 							placeholder="接口地址"
 							subfix="接口地址"
 						/>
 						<Input
-							v-model:value="editingChart.apiOption.timer"
+							v-model:value="editingComponent.apiOption.timer"
 							type="number"
 							placeholder="刷新时间"
 							subfix="秒"
@@ -139,14 +139,14 @@
 			class="bs"
 			v-model:activeKey="decoratorSetting"
 			:ghost="true"
-			v-if="editingDecorator && editingComponentType === 'decorator'"
+			v-if="editingComponentId && editingComponentType !== 'chart'"
 		>
 			<a-collapse-panel key="0" header="装饰器设置">
 				<div class="option-item wh">
 					<div class="option-label">装饰器尺寸</div>
 					<div class="option-value">
 						<Input
-							v-model:data="editingDecorator.styleOption.width"
+							v-model:data="editingComponent.styleOption.width"
 							type="number"
 							disabled
 							placeholder="宽度"
@@ -154,7 +154,7 @@
 						/>
 						<Input
 							disabled
-							v-model:data="editingDecorator.styleOption.height"
+							v-model:data="editingComponent.styleOption.height"
 							type="number"
 							subfix="高"
 						/>
@@ -164,7 +164,7 @@
 					<div class="option-label">装饰器定位</div>
 					<div class="option-value">
 						<Input
-							v-model:data="editingDecorator.styleOption.top"
+							v-model:data="editingComponent.styleOption.top"
 							disabled
 							type="number"
 							placeholder="上间距"
@@ -172,7 +172,7 @@
 						/>
 						<Input
 							disabled
-							v-model:data="editingDecorator.styleOption.left"
+							v-model:data="editingComponent.styleOption.left"
 							type="number"
 							placeholder="左间距"
 							subfix="左"
@@ -183,7 +183,7 @@
 					<div class="option-label">装饰器值</div>
 					<div class="option-value picker">
 						<Input
-							v-model:data="editingDecorator.value"
+							v-model:data="editingComponent.value"
 							type="string"
 							placeholder="请输入"
 							subfix="键值"
@@ -192,28 +192,31 @@
 				</div>
 				<div
 					class="option-item color"
-					v-if="editingDecorator.styleOption.color"
+					v-if="(editingComponent.styleOption as StyleOption<DecoratorFactory>).color"
 				>
 					<div class="option-label">字体颜色</div>
 					<div class="option-value picker">
 						<color-picker
-							v-model:pureColor="editingDecorator.styleOption.color"
+							v-model:pureColor="(editingComponent.styleOption as StyleOption<DecoratorFactory>).color"
 							v-model:gradientColor="gradientColor"
 						/>
 					</div>
 				</div>
-				<div class="option-item api" v-if="editingDecorator.styleOption.font">
+				<div
+					class="option-item api"
+					v-if="(editingComponent.styleOption as StyleOption<DecoratorFactory>).font"
+				>
 					<div class="option-label">字体设置</div>
 					<div class="option-value">
 						<Input
 							style="width: 100%"
-							v-model:data="editingDecorator.styleOption.font.fontSize"
+							v-model:data="(editingComponent.styleOption as StyleOption<DecoratorFactory>).font.fontSize"
 							type="number"
 							placeholder="字体大小"
 							subfix="大小"
 						/>
 						<Input
-							v-model:value="editingDecorator.styleOption.font.fontWeight"
+							v-model:value="editingComponent.styleOption.font.fontWeight"
 							type="number"
 							placeholder="字重"
 							subfix="字重"
@@ -233,7 +236,13 @@ import "vue3-colorpicker/style.css";
 import Config from "@/config/index";
 import { useStore } from "vuex";
 import { computed, ref, watchEffect } from "vue";
-import { EditorStyleProps } from "@/types/editor";
+import {
+	EditorStyleProps,
+	FvComponentBase,
+	FvComponentList,
+	StyleOption,
+	DecoratorFactory,
+} from "@/types/editor";
 import { ChartOptionsProps } from "@/types/chart";
 import { DecoratorOptionProps } from "@/types/decorator";
 const activeKey = ref(0);
@@ -243,33 +252,17 @@ const store = useStore();
 const editorSetting = computed<EditorStyleProps>(() => {
 	return store.state.editor.style;
 });
-const editingChartId = computed<string | null>(() => {
-	return store.state.editor.editingComponentId;
-});
-const editingComponentType = computed<string | null>(() => {
+const editingComponentType = computed<string>(() => {
 	return store.state.editor.editingComponentType;
 });
-const editingChart = computed(() => {
-	const editingChartId: string = store.state.editor.editingComponentId;
-	const chartList: ChartOptionsProps[] | null = store.state.editor.component;
-	if (!chartList) return null;
-	const componet = chartList.filter((item) => item.uid === editingChartId);
-	if (componet && componet.length === 1) {
-		return componet[0];
-	} else {
-		return null;
-	}
+const editingComponentId = computed<string | null>(() => {
+	return store.state.editor.editingComponentId;
 });
-const editingDecorator = computed(() => {
+const editingComponent = computed<FvComponentBase>(() => {
 	const editingComponentId: string = store.state.editor.editingComponentId;
-	const decoratorList: DecoratorOptionProps[] | null =
-		store.state.editor.decorators;
-	console.log(editingComponentId, decoratorList);
-	if (!decoratorList) return null;
-	const componet = decoratorList.filter(
-		(item) => item.uid === editingComponentId
-	);
-	console.warn("com", componet);
+	const chartList: FvComponentList | null = store.state.editor.components;
+	if (!chartList) return null;
+	const componet = chartList.filter((item) => item.uid === editingComponentId);
 	if (componet && componet.length === 1) {
 		return componet[0];
 	} else {
@@ -293,24 +286,6 @@ const handleChange = ({ file }) => {
 		const url = file.response.data.url;
 		store.commit("editor/setStyle", { ...editorSetting.value, imgUrl: url });
 	}
-};
-const getLoction = () => {
-	const componentBox: HTMLElement | null = document.getElementById("h-ed");
-	if (!componentBox) return;
-	const componentList = componentBox.children;
-	const componentListPos = [];
-	for (let i = 0; i < componentList.length - 1; i++) {
-		const { id } = componentList[i];
-		const { left, top, width, height } = getComputedStyle(componentList[i]);
-		componentListPos.push({
-			uid: id,
-			left: Number(left.replace("px", "")),
-			top: Number(top.replace("px", "")),
-			width: Number(width.replace("px", "")),
-			height: Number(height.replace("px", "")),
-		});
-	}
-	console.log("定位", "handleDrop", componentListPos);
 };
 const change = (color: string) => {
 	store.commit("editor/setStyle", {

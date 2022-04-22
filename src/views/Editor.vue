@@ -81,6 +81,7 @@ import Resize from "../components/editor/Resize.vue";
 import { onMounted, ref, watchEffect } from "vue";
 import { useStore } from "vuex";
 import { ChartOptionsProps } from "@/types/chart";
+import { FvComponentBase } from "@/types/editor";
 import { useRoute, useRouter } from "vue-router";
 import { message } from "ant-design-vue";
 export default {
@@ -141,15 +142,9 @@ export default {
 			console.log("componet", component);
 			if (!component) return;
 			const componentWidthHandedLT = component.map((item) => {
-				const { uid, name, styleOption, renderFuc, apiOption } = item;
+				const { styleOption, apiOption } = item;
 				const newstyleOption = Object.assign({}, styleOption);
-				if (newstyleOption.distLt) {
-					// newstyleOption.top = newstyleOption.distLt[1];
-					// newstyleOption.left = newstyleOption.distLt[0];
-					delete newstyleOption.distLt;
-				}
-				console.log(newstyleOption, item);
-				return { uid, name, styleOption: newstyleOption, renderFuc, apiOption };
+				return { ...item, styleOption: newstyleOption };
 			});
 			console.log(componentWidthHandedLT, "component");
 			// //这里的转换不可以使用JSON.stringify 回忽略函数
@@ -157,7 +152,7 @@ export default {
 				uid: uid,
 				name: canvasName.value,
 				component: stringifyChartComponent(
-					componentWidthHandedLT as ChartOptionsProps[]
+					componentWidthHandedLT as FvComponentBase[]
 				),
 				style: JSON.stringify(style),
 			};

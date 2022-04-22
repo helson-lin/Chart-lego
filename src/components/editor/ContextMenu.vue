@@ -24,6 +24,7 @@ const contextMenu = ref([
 </script>
 <style lang="scss" scoped>
 .context-menu {
+	position: absolute;
 	width: 100px;
 	text-align: center;
 	line-height: 30px;

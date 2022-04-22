@@ -4,7 +4,7 @@
 			class="decorator"
 			draggable="true"
 			v-for="decorator in decoratorList"
-			:key="decorator"
+			:key="decorator.uid"
 			@click="addDecorator(decorator)"
 			@dragstart="drag"
 		>
@@ -21,7 +21,7 @@ import { getComponetsName } from "../decorator/index";
 const decoratorList = ref<DecoratorOptionProps[]>([]);
 const store = useStore();
 const addDecorator = (decorator: DecoratorOptionProps) => {
-	store.commit("editor/addDecorator", { ...decorator, uid: uuidv4() });
+	store.commit("editor/addComponent", { ...decorator, uid: uuidv4() });
 };
 const drag = (e: DragEvent) => {
 	const el = e.target;

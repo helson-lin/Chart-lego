@@ -13,27 +13,19 @@
 			@dragenter="dragenter"
 			@dragleave="dragleave"
 		>
-			<div
+			<component
 				v-for="component in componentList"
-				:class="['h-dragable', 'h-chart']"
 				:key="component.uid"
 				:id="component.uid"
-				:style="locationStyle(component.styleOption)"
-				@contextmenu.prevent="openMenu($event, item)"
-				@click="chartClick"
-			></div>
-			<component
-				v-for="decorator in decoratorList"
-				:key="decorator.uid"
-				:id="decorator.uid"
 				:class="['h-dragable']"
-				v-model:value="decorator.value"
-				:style="decoratorStyle(decorator.styleOption)"
-				:is="decorator.name"
-				@contextmenu.prevent="openMenu($event, decorator.uid)"
-				@click="chartClick($event, 'decorator')"
+				v-model:value="component.value"
+				:style="locationStyle(component.styleOption)"
+				:is="component.type === 'chart' ? 'chart' : component.name"
+				@contextmenu.prevent="openMenu"
+				@click="chartClick($event, component.type)"
 			></component>
 		</div>
+		<ContextMenu v-if="showContextMenu" />
 	</div>
 </template>
 <script lang="ts" setup>
@@ -57,8 +49,14 @@ import {
 	ChartComponentProps,
 } from "@/types/chart";
 import Chart from "@/lib/chart";
-import { EditorStyleProps } from "@/types/editor";
-import { DecoratorOptionProps, DecoratorStyleOptions } from "@/types/decorator";
+import {
+	EditorStyleProps,
+	FvComponentBase,
+	FvComponentList,
+	StyleOption,
+	DecoratorFactory,
+} from "@/types/editor";
+import { DecoratorOptionProps } from "@/types/decorator";
 export interface ListItemProps {
 	id: string;
 	url: string;
@@ -75,15 +73,15 @@ const chartComponentList = ref<ChartComponentProps[] | null>(null);
 const editorSettingStyle = computed<EditorStyleProps>(() => {
 	return store.state.editor.style;
 });
-const menuTo = ref("#h-ed");
-const componentList = computed<ChartOptionsProps[]>(() => {
-	return store.state.editor.component;
+const showContextMenu = ref(false);
+const componentList = computed<FvComponentList>(() => {
+	return store.state.editor.components;
 });
 const decoratorList = computed<DecoratorOptionProps[]>(() => {
 	return store.state.editor.decorators;
 });
-const openMenu = (e: Event, id: string) => {
-	menuTo.value = "#" + id;
+const openMenu = (e: Event) => {
+	showContextMenu.value = !showContextMenu.value;
 };
 // 编辑器style 实时修改
 const editorStyle = computed(() => {
@@ -102,21 +100,15 @@ const editorStyle = computed(() => {
 	return baseStyle;
 });
 // 图表组件的位置的大小样式信息
-const locationStyle = (style: StyleOptionProps): { [key: string]: string } => {
-	console.log(style);
-	return {
-		width: `${style.width}px`,
-		height: `${style.height}px`,
-		left: `${style.left}px`,
-		top: `${style.top}px`,
+const locationStyle = (
+	options: StyleOption<DecoratorFactory | undefined>
+): { [key: string]: string } => {
+	const style = {
+		width: `${options.width}px`,
+		height: `${options.height}px`,
+		left: `${options.left}px`,
+		top: `${options.top}px`,
 		position: "absoulute",
-	};
-};
-const decoratorStyle = (options: DecoratorStyleOptions) => {
-	if (!options) return {};
-	const style: { [key: string]: string | number } = {
-		// width: `${options.width}px`,
-		// height: `${options.height}px`,
 	};
 	if (options.color) {
 		style.color = options.color;
@@ -145,15 +137,6 @@ const dragListen = () => {
 			const { offsetLeft, offsetTop } = target as HTMLElement;
 			const deltaLeft = clientX - offsetLeft;
 			const deltaTop = clientY - offsetTop;
-			console.log(
-				" offsetX, offsetY",
-				event,
-				deltaLeft,
-				deltaLeft,
-				"---",
-				offsetLeft,
-				offsetTop
-			);
 		},
 		false
 	);
@@ -313,8 +296,10 @@ const chartClick = (e: Event, type = "chart") => {
 	const targetDom = judegNodeIsDragable(el);
 	if ((targetElement && targetElement === targetDom) || !targetDom) return;
 	targetElement = targetDom;
-	console.warn("chartClick", targetElement.id, type);
-	store.commit("editor/setEditingComponent", { id: targetElement.id, type });
+	store.commit("editor/setEditingComponent", {
+		id: targetElement.id,
+		type: type,
+	});
 	if (moveable) {
 		moveable.destroy();
 	}
@@ -331,30 +316,19 @@ const canvasClick = (e: Event) => {
 		}
 	}
 };
-// 给图表组件增加点击事件实现切换拖拽对象
-const dragDivListener = () => {
-	const editorDiv = document.getElementById("h-ed");
-	if (!editorDiv) return;
-	editorDiv.addEventListener("click", (event) => {
-		const el = event.target as HTMLElement;
-		console.warn(el.classList, "/n", event.target);
-		const targetDom = judegNodeIsDragable(el);
-		console.log(targetDom, "targetDom");
-		// if ((targetElement && targetElement === targetDom) || !targetDom) return;
-		// targetElement = targetDom;
-		// if (moveable) {
-		// 	moveable.destroy();
-		// }
-		// init();
-	});
-};
+/**
+ * @description: 渲染数据list
+ * @param {*}
+ * @return {*}
+ */
 const renderByList = () => {
 	const _chartComponentList: ChartComponentProps[] = [];
-	componentList.value.forEach((component) => {
-		console.warn("渲染", component);
-		const chart = new Chart(component, true);
-		const chartComponent: ChartComponentProps = { chart, uid: component.uid };
-		_chartComponentList.push(chartComponent);
+	componentList.value.forEach((component: FvComponentBase) => {
+		if (component.type === "chart") {
+			const chart = new Chart(component as ChartOptionsProps, true);
+			const chartComponent: ChartComponentProps = { chart, uid: component.uid };
+			_chartComponentList.push(chartComponent);
+		}
 	});
 	chartComponentList.value = _chartComponentList;
 };
@@ -411,7 +385,7 @@ const dragover = (e: DragEvent) => {
 };
 onMounted(() => {
 	keyBoard();
-	dragListen();
+	//dragListen();
 });
 // 实时渲染组件列表： 重复渲染问题存在
 // 不同类型组件，走不同渲染方法
@@ -419,7 +393,6 @@ watchEffect(() => {
 	if (componentList.value && componentList.value.length) {
 		instance?.proxy?.$nextTick(() => {
 			renderByList();
-			// dragDivListener();
 		});
 	}
 });
