@@ -26,7 +26,7 @@ const props = defineProps({
 	},
 });
 const emits = defineEmits<{
-	(e: "update:data"): void;
+	(e: "update:data", val: string | number): void;
 }>();
 const emitChange = (e: Event) => {
 	const el = e.target;

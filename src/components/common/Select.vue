@@ -23,11 +23,11 @@
 	</div>
 </template>
 <script lang="ts" setup>
-import { defineProps, withDefaults, ref } from "vue";
+import { defineProps, withDefaults, defineEmits, ref } from "vue";
 interface SelectProps {
 	data: string | null;
-	valueKey: string | null;
-	label: string | null;
+	valueKey: string;
+	label: string;
 	list: { [key: string]: string }[] | [];
 	placeholder: string | null;
 	subfix: string | null;
@@ -41,7 +41,7 @@ const props = withDefaults(defineProps<SelectProps>(), {
 	subfix: null,
 });
 const emits = defineEmits<{
-	(e: "update:data"): void;
+	(e: "update:data", val: string): void;
 }>();
 const newId = () => {
 	return Symbol();
@@ -64,7 +64,6 @@ const choose = (val: any) => {
 		padding: 0 10px;
 		box-sizing: border-box;
 		text-align: left;
-		color: $color-text-secondary;
 		background: $background-color-c;
 		cursor: pointer;
 		&.placeholder {

@@ -9,6 +9,7 @@ export default {
 		left: 0,
 		zIndex: 1,
 		color: "#000000",
+		textAlign: "left",
 		font: {
 			fontSize: 20,
 			fontWeight: 500,

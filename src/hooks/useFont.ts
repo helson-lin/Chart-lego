@@ -13,13 +13,14 @@ const fontList = ref<FontFamily[]>([]);
  * @param {list}
  */
 const insertFontToHeader = (list: FontFamily[]) => {
+	const style = document.createElement("style");
+	style.type = "text/css";
+	let text = "";
 	list.forEach((font) => {
-		const style = document.createElement("style");
-		style.type = "text/css";
-		const text = ` @font-face {font-family:'${font.name}';src:url('${font.url}')}`;
-		style.innerText = text;
-		document.getElementsByTagName("head")[0].appendChild(style);
+		text += ` @font-face {font-family:'${font.name}';src:url('${font.url}')}`;
 	});
+	style.innerText = text;
+	document.getElementsByTagName("head")[0].appendChild(style);
 };
 /**
  * @description: 请求服务端字体数据

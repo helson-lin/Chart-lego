@@ -1,28 +1,41 @@
 <template>
 	<div class="slider-bar">
-		<div class="slider-item">
-			<bar-chart-outlined class="icon" @click="emitIndex(0)" />
-			<span class="item-name">图表</span>
-		</div>
-		<div class="slider-item">
-			<sliders-outlined class="icon" @click="emitIndex(1)" />
-			<span class="item-name">装饰器</span>
+		<div
+			:class="['slider-item', index === inx ? 'active' : '']"
+			v-for="(item, inx) in list"
+			:key="item.name"
+			@click="emitIndex(inx)"
+		>
+			<bar-chart-outlined class="icon" v-show="inx === 0" />
+			<sliders-outlined class="icon" v-show="inx === 1" />
+			<!-- <component class="icon" :is="item.icon" /> -->
+			<span class="item-name">{{ item.name }}</span>
 		</div>
 	</div>
 </template>
 <script lang="ts" setup>
-import { defineProps, defineEmits } from "vue";
+import { defineProps, defineEmits, ref } from "vue";
 import { BarChartOutlined, SlidersOutlined } from "@ant-design/icons-vue";
 interface Props {
 	index: number;
 }
 defineProps<Props>();
 const emit = defineEmits<{
-	(e: "update:index"): void;
+	(e: "update:index", val: number): void;
 }>();
 const emitIndex = (index: number) => {
 	emit("update:index", index);
 };
+const list = ref<{ name: string; icon: string }[]>([
+	{
+		name: "图表",
+		icon: "BarChartOutlined",
+	},
+	{
+		name: "装饰器",
+		icon: "SlidersOutlined",
+	},
+]);
 </script>
 <style lang="scss" scoped>
 .slider-bar {
@@ -33,18 +46,18 @@ const emitIndex = (index: number) => {
 	flex-direction: column;
 	align-items: center;
 	justify-items: center;
-	padding: 10px 0;
 	box-sizing: border-box;
 	border-right: 1px solid #ccc;
 	.slider-item {
+		width: 100%;
 		display: inline-flex;
 		flex-direction: column;
+		align-items: center;
 		margin-bottom: 20px;
-		&:hover {
-			// background-color: rgba(127, 157, 213, 0.1);
-			// padding: 0 5px;
-			// box-sizing: border-box;
-			// border-radius: 5px;
+		cursor: pointer;
+		&.active {
+			color: $color-primary;
+			opacity: 0.9;
 		}
 		.item-name {
 			font-size: 11px;

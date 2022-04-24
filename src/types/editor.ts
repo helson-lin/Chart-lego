@@ -3,6 +3,9 @@ import { Font } from "./decorator";
 export type Parse<T> = {
 	[P in keyof T]: T[P];
 };
+export type Mixin<T, X> = {
+	[P in keyof (T & X)]: (T & X)[P];
+};
 /* 编辑器基本样式 */
 export interface EditorStyleProps {
 	width: number;
@@ -32,9 +35,7 @@ export interface BaseStyle {
 	themeColor?: string;
 }
 
-export type StyleOption<T extends undefined | any> = T extends undefined
-	? BaseStyle
-	: Parse<T> & BaseStyle;
+export type StyleOption<T> = Mixin<T, BaseStyle>;
 
 /* 图表配置项API接口调用配置基础信息 */
 export interface ApiOption {
@@ -48,13 +49,14 @@ export interface BaseComponent<T> {
 	name: string;
 	type: string;
 	img?: string;
-	styleOption: StyleOption<T | undefined>;
+	styleOption: StyleOption<T>;
 }
-
+type TextAlign = "left" | "center" | "right" | "justify";
 export interface DecoratorFactory {
 	value: any;
 	font?: Font;
 	color?: string;
+	textAlign?: TextAlign;
 }
 
 export interface ChartComponentExtends {

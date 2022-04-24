@@ -1,15 +1,16 @@
 <template>
-	<div class="fv-text fv-decorator">
-		{{ value }}
-	</div>
+	<div class="fv-text fv-decorator" v-bind="$attrs" v-html="value"></div>
 </template>
 <script lang="ts" setup>
-import { defineProps, withDefaults, computed } from "vue";
-import { DecoratorStyleOptions, Font } from "@/types/decorator";
+import { defineProps, withDefaults, defineEmits, ref } from "vue";
+import { DecoratorStyleOptions } from "@/types/decorator";
 export interface FvTextProps {
 	value: string;
 	styleOption: DecoratorStyleOptions;
 }
+const emits = defineEmits<{
+	(e: "update:value", val: string): void;
+}>();
 withDefaults(defineProps<FvTextProps>(), {
 	value: "demo",
 	styleOption: () => {
@@ -21,6 +22,12 @@ withDefaults(defineProps<FvTextProps>(), {
 		};
 	},
 });
+const disabled = ref<boolean>(true);
+const inputChange = (e: Event) => {
+	const el = e.target;
+	if (!el) return;
+	emits("update:value", el.value);
+};
 </script>
 <style lang="scss" scoped>
 .fv-text {
@@ -28,5 +35,7 @@ withDefaults(defineProps<FvTextProps>(), {
 	box-sizing: border-box;
 	text-align: center;
 	line-height: 100%;
+	border: none;
+	resize: none;
 }
 </style>

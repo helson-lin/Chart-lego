@@ -27,10 +27,8 @@ export const renderByList = (
  * @param {*}
  * @return {*}
  */
-export const computedStyle = (
-	options: StyleOption<DecoratorFactory | undefined>
-) => {
-	const style = {
+export const computedStyle = (options: StyleOption<DecoratorFactory>) => {
+	const style: { [key: string]: any } = {
 		width: `${options.width}px`,
 		height: `${options.height}px`,
 		left: `${options.left}px`,

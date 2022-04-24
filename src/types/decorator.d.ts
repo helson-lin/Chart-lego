@@ -25,10 +25,10 @@ export interface DecoratorStyleOptions {
 export interface Decorator {
 	styleOption?: DecoratorStyleOptions;
 }
-
 export interface DecoratorOptionProps {
 	uid: string; // 即是图表的id又是Dom的id
 	name?: string;
+	imgUrl?: string;
 	type: string;
 	value?: string | number | boolean; // 图表的值
 	styleOption?: DecoratorStyleOptions;

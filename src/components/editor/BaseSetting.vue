@@ -184,9 +184,9 @@
 					<div class="option-value picker">
 						<Input
 							v-model:data="editingComponent.value"
-							type="string"
+							type="textarea"
 							placeholder="请输入"
-							subfix="键值"
+							subfix="文本"
 						/>
 					</div>
 				</div>
@@ -208,6 +208,7 @@
 				>
 					<div class="option-label">字体设置</div>
 					<div class="option-value">
+						<TextAlign v-model:data="editingComponent.styleOption.textAlign" />
 						<Select
 							subfix="字体"
 							valueKey="name"
@@ -242,6 +243,7 @@ import { ColorPicker } from "vue3-colorpicker";
 import Switch from "../common/Switch.vue";
 import Input from "../common/Input.vue";
 import Select from "../common/Select.vue";
+import TextAlign from "../common/TextAlign.vue";
 import "vue3-colorpicker/style.css";
 import Config from "@/config/index";
 import { fontList, getList } from "@/hooks/useFont";

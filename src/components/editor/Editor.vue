@@ -118,8 +118,8 @@ const editorStyle = computed(() => {
 const locationStyle = (
 	options: StyleOption<DecoratorFactory | undefined>,
 	uid: string
-): { [key: string]: string } => {
-	const style = {
+): { [key: string]: unknown } => {
+	const style: { [key: string]: unknown } = {
 		width: `${options.width}px`,
 		height: `${options.height}px`,
 		left: `${options.left}px`,
@@ -135,8 +135,12 @@ const locationStyle = (
 	if (options.font) {
 		const { fontSize, fontFamily, fontWeight } = options.font;
 		if (fontSize) style.fontSize = `${fontSize}px`;
+		if (fontSize) style.fontHeight = `${fontSize + 10}px`;
 		if (fontFamily) style.fontFamily = fontFamily;
 		if (fontWeight) style.fontWeight = fontWeight;
+	}
+	if (options.textAlign) {
+		style.textAlign = options.textAlign;
 	}
 	return style;
 };
