@@ -1,6 +1,7 @@
 export default {
 	value: "demo",
 	type: "text",
+	imgUrl: "https://pic.kblue.site/img/20220423225554.png",
 	styleOption: {
 		width: 150,
 		height: 40,

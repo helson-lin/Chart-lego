@@ -16,6 +16,7 @@
 </template>
 <script lang="ts" setup>
 import { ref, computed, onMounted, h } from "vue";
+import lodash from "lodash";
 import { LoadingOutlined } from "@ant-design/icons-vue";
 import { useStore } from "vuex";
 import { v4 as uuidv4 } from "uuid";
@@ -58,7 +59,7 @@ const getChartList = async () => {
  * @return {*}
  */
 const addToEditor = (chart: ChartOptionsProps) => {
-	const chartWidthPosition = Object.assign({}, chart);
+	const chartWidthPosition = lodash.cloneDeep(chart);
 	chartWidthPosition.uid = uuidv4(); // 新的id
 	store.commit("editor/addComponent", { ...chartWidthPosition, type: "chart" });
 };

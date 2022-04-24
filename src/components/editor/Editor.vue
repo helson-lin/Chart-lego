@@ -19,13 +19,19 @@
 				:id="component.uid"
 				:class="['h-dragable']"
 				v-model:value="component.value"
-				:style="locationStyle(component.styleOption)"
+				:style="locationStyle(component.styleOption, component.uid)"
 				:is="component.type === 'chart' ? 'chart' : component.name"
 				@contextmenu.prevent="openMenu"
 				@click="chartClick($event, component.type)"
 			></component>
 		</div>
-		<ContextMenu v-if="showContextMenu" />
+		<ContextMenu
+			v-if="showContextMenu"
+			:style="{
+				left: contextMenuPos.offsetX + 'px',
+				top: contextMenuPos.offsetY + 'px',
+			}"
+		/>
 	</div>
 </template>
 <script lang="ts" setup>
@@ -73,14 +79,23 @@ const chartComponentList = ref<ChartComponentProps[] | null>(null);
 const editorSettingStyle = computed<EditorStyleProps>(() => {
 	return store.state.editor.style;
 });
+// 控制菜单显影
 const showContextMenu = ref(false);
+// 控制菜单定位
+const contextMenuPos = ref({
+	offsetX: 0,
+	offsetY: 0,
+});
 const componentList = computed<FvComponentList>(() => {
 	return store.state.editor.components;
 });
 const decoratorList = computed<DecoratorOptionProps[]>(() => {
 	return store.state.editor.decorators;
 });
-const openMenu = (e: Event) => {
+const openMenu = (e: PointerEvent) => {
+	const { offsetX, offsetY } = e;
+	contextMenuPos.value.offsetX = offsetX;
+	contextMenuPos.value.offsetY = offsetY;
 	showContextMenu.value = !showContextMenu.value;
 };
 // 编辑器style 实时修改
@@ -101,7 +116,8 @@ const editorStyle = computed(() => {
 });
 // 图表组件的位置的大小样式信息
 const locationStyle = (
-	options: StyleOption<DecoratorFactory | undefined>
+	options: StyleOption<DecoratorFactory | undefined>,
+	uid: string
 ): { [key: string]: string } => {
 	const style = {
 		width: `${options.width}px`,
@@ -185,59 +201,48 @@ const componentResize = (uid: string) => {
 const init = () => {
 	const editorDom = document.getElementById("h-ed");
 	if (!editorDom) return;
-	moveable = new Moveable(editorDom, {
-		target: targetElement, // 指定拖拽对象
-		className: "dragable",
-		snapContainer: editorDom,
-		snapThreshold: 20,
-		draggable: true,
-		dragArea: true,
-		resizable: true,
-		scalable: true,
-		snappable: true,
-		snapVertical: true,
-		zoom: 1,
-		snapHorizontal: true,
-		snapElement: true,
-		snapGap: true,
-		snapGridHeight: 10,
-		snapGridWidth: 10,
-		snapDistFormat: (v) => `${v}px`, // 修改举例标识
-		rotatable: false,
-		warpable: false,
-		pinchable: true, // ["resizable", "scalable", "rotatable"]
-		origin: false,
-		keepRatio: true,
-		edge: true,
-		padding: { left: 0, top: 0, right: 0, bottom: 0 },
-		// bounds: editorDom.getBoundingClientRect(),
-		// innerBounds: editorDom.getBoundingClientRect(),
-		throttleDrag: 0,
-		throttleResize: 0,
-		throttleScale: 0,
-		throttleRotate: 0,
-	});
-	moveable.edgeDraggable = true;
 	const dragableArray: HTMLElement[] = Array.from(
 		document.querySelectorAll(".h-dragable")
 	);
 	dragableArray.push(editorDom);
-	moveable.elementGuidelines = dragableArray;
-	moveable.horizontalGuidelines = [100, 200, 300, 400, 500];
-	moveable.verticalGuidelines = [100, 200, 300, 400, 500];
-	moveable.isDisplayInnerSnapDigit = true;
-	moveable.isDisplaySnapDigit = true;
+	moveable = new Moveable(editorDom, {
+		target: targetElement, // 指定拖拽对象
+		className: "dragable",
+		edgeDraggable: false,
+		draggable: true,
+		dragArea: true,
+		resizable: true,
+		scalable: true,
+		snappable: true, // 磁吸
+		snapContainer: editorDom,
+		snapThreshold: 20, // 磁吸效果触发的临界值,即元素与辅助线间距小于x,则自动贴边
+		elementGuidelines: dragableArray, // 磁吸效果辅助线的dom列表
+		isDisplaySnapDigit: true, // 是否展示与磁吸辅助线的距离,当moveable元素在磁吸参照元素之外时,moveable元素距离磁吸元素辅助线的虚线长度
+		isDisplayInnerSnapDigit: true, // 是否展示与磁吸辅助线的距离,当moveable元素内部存在磁吸参照元素时,moveable元素距离磁吸元素辅助线的虚线长度
+		renderDirections: ["n", "nw", "ne", "s", "se", "sw", "e", "w"], //设置方向以显示控制框
+		zoom: 1,
+		origin: false,
+		snapVertical: true,
+		snapHorizontal: true,
+		snapElement: true,
+		snapGap: true,
+		throttleDrag: 1,
+		snapGridHeight: 10,
+		snapGridWidth: 10,
+		snapDistFormat: (v) => `${v}px`, // 修改举例标识
+		rotatable: false,
+		padding: { left: 0, top: 0, right: 0, bottom: 0 },
+	});
 	moveable
 		.on("dragStart", ({ target, clientX, clientY }) => {
 			console.log("onDragStart");
 		})
 		.on("drag", (el) => {
 			const { left, top, transform, target, dist } = el;
-			console.log("onDrag left, top", left, top, el);
 			if (!target) return;
 			// 这里的left top 需要计算 才可以用来提交数据
 			const finalPostition: number[] = Object.assign([], dist);
-			console.log("demo", finalPostition);
+			// console.log("demo", finalPostition);
 			store.commit("editor/setComponentTl", {
 				uid: target.id,
 				left: left,
@@ -296,6 +301,7 @@ const chartClick = (e: Event, type = "chart") => {
 	const targetDom = judegNodeIsDragable(el);
 	if ((targetElement && targetElement === targetDom) || !targetDom) return;
 	targetElement = targetDom;
+	console.log(targetElement.id, "chartClick");
 	store.commit("editor/setEditingComponent", {
 		id: targetElement.id,
 		type: type,
@@ -418,17 +424,66 @@ watchEffect(() => {
 	box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
 	transform-origin: 50% 20%;
 	overflow: hidden;
+	box-sizing: content-box;
 	&.drag-over {
 		border: 2px dashed rgba(24, 144, 255, 0.7) !important;
 	}
 	:deep() .moveable-area {
 		cursor: grabbing;
 	}
+	// 重写moveable样式
+	:deep() .rCSwtyrwf .moveable-control {
+		position: absolute;
+		width: 15px;
+		height: 15px;
+		border-radius: 2px;
+		// border: 2px solid #fff;
+		box-sizing: border-box;
+		background: $color-primary;
+		margin-top: -7px;
+		margin-left: -7px;
+		z-index: 10;
+		&.moveable-w {
+			margin-left: -5px;
+			width: 10px;
+			height: 28px;
+			border-radius: 7px;
+		}
+		&.moveable-n {
+			margin-top: -5px;
+			width: 28px;
+			height: 10px;
+			border-radius: 7px;
+		}
+		&.moveable-s {
+			margin-top: -5px;
+			width: 28px;
+			height: 10px;
+			border-radius: 7px;
+		}
+		&.moveable-e {
+			margin-left: -5px;
+			width: 10px;
+			height: 28px;
+			border-radius: 7px;
+		}
+	}
+	:deep() .moveable-line {
+		position: absolute;
+		width: 2px;
+		height: 2px;
+		background: $color-primary;
+		transform-origin: 0px 0.5px;
+	}
 }
 .h-dragable {
 	backdrop-filter: blur(12px);
 	position: absolute;
-	cursor: pointer;
+	// cursor: pointer;
+	box-sizing: content-box;
+	&:hover {
+		border: 1px solid $color-primary;
+	}
 	&.h-chart {
 		width: 400px;
 		height: 300px;

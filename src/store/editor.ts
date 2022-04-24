@@ -24,8 +24,6 @@ export interface EditorStoreProps {
 	name: string;
 	style: EditorStyleProps;
 	components?: FvComponentList; // for the monent
-	component: ChartOptionsProps[];
-	decorators: DecoratorOptionProps[];
 	editingComponentId: string | null;
 	editingComponentType: string | null;
 }
@@ -58,8 +56,6 @@ export const testComponents: EditorStoreProps = {
 	name: "",
 	style: defaultStyle,
 	components: [],
-	component: [], // 图表组件
-	decorators: [], // 装饰器组件
 	editingComponentId: null,
 	editingComponentType: null,
 };
@@ -79,18 +75,9 @@ const editor: Module<EditorStoreProps, GloablDataProps> = {
 		setEditorUid(state, uid) {
 			state.uid = uid;
 		},
-		setComponent(state, list) {
-			state.component = list;
-		},
 		addComponent(state, component: FvComponentBase) {
 			if (!state.components) return;
 			state.components.push(component);
-		},
-		setDecorator(state, list) {
-			state.decorators = list;
-		},
-		addDecorator(state, decorator: DecoratorOptionProps) {
-			state.decorators.push(decorator);
 		},
 		/**
 		 * @description: 设置正在编辑的组件
@@ -121,6 +108,7 @@ const editor: Module<EditorStoreProps, GloablDataProps> = {
 			const { uid, top, left } = idAndTl;
 			const items = state.components.filter((item) => item.uid === uid);
 			if (items.length === 0) return;
+			console.log("setComponentTl", items[0].uid);
 			items[0].styleOption.top = top;
 			items[0].styleOption.left = left;
 		},

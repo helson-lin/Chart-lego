@@ -8,11 +8,17 @@
 			@click="addDecorator(decorator)"
 			@dragstart="drag"
 		>
-			{{ decorator.name }}
+			<img
+				:src="decorator.imgUrl"
+				:alt="decorator.name"
+				:title="decorator.name"
+			/>
+			<!-- {{ decorator.name }}={{ decorator.imgUrl }} -->
 		</div>
 	</div>
 </template>
 <script lang="ts" setup>
+import lodash from "lodash";
 import { DecoratorOptionProps } from "@/types/decorator";
 import { v4 as uuidv4 } from "uuid";
 import { onMounted, ref } from "vue";
@@ -21,7 +27,9 @@ import { getComponetsName } from "../decorator/index";
 const decoratorList = ref<DecoratorOptionProps[]>([]);
 const store = useStore();
 const addDecorator = (decorator: DecoratorOptionProps) => {
-	store.commit("editor/addComponent", { ...decorator, uid: uuidv4() });
+	const addDecorator = lodash.cloneDeep(decorator);
+	addDecorator.uid = uuidv4();
+	store.commit("editor/addComponent", addDecorator);
 };
 const drag = (e: DragEvent) => {
 	const el = e.target;
@@ -56,6 +64,10 @@ onMounted(() => {
 		font-weight: 400;
 		background-color: rgba($color: $color-primary, $alpha: 0.2);
 		cursor: pointer;
+		img {
+			width: 100%;
+			height: 100%;
+		}
 		&.draging {
 			cursor: grabbing;
 		}

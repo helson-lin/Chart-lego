@@ -208,6 +208,13 @@
 				>
 					<div class="option-label">字体设置</div>
 					<div class="option-value">
+						<Select
+							subfix="字体"
+							valueKey="name"
+							label="name"
+							v-model:data="editingComponent.styleOption.font.fontFamily"
+							:list="fontFamilyList"
+						/>
 						<Input
 							style="width: 100%"
 							v-model:data="(editingComponent.styleOption as StyleOption<DecoratorFactory>).font.fontSize"
@@ -216,7 +223,7 @@
 							subfix="大小"
 						/>
 						<Input
-							v-model:value="editingComponent.styleOption.font.fontWeight"
+							v-model:data="editingComponent.styleOption.font.fontWeight"
 							type="number"
 							placeholder="字重"
 							subfix="字重"
@@ -229,13 +236,15 @@
 	</div>
 </template>
 <script lang="ts" setup>
+import { useStore } from "vuex";
+import { computed, onMounted, ref, watchEffect } from "vue";
 import { ColorPicker } from "vue3-colorpicker";
 import Switch from "../common/Switch.vue";
 import Input from "../common/Input.vue";
+import Select from "../common/Select.vue";
 import "vue3-colorpicker/style.css";
 import Config from "@/config/index";
-import { useStore } from "vuex";
-import { computed, ref, watchEffect } from "vue";
+import { fontList, getList } from "@/hooks/useFont";
 import {
 	EditorStyleProps,
 	FvComponentBase,
@@ -248,6 +257,7 @@ import { DecoratorOptionProps } from "@/types/decorator";
 const activeKey = ref(0);
 const chartSetting = ref(0);
 const decoratorSetting = ref(0);
+const fontFamilyList = fontList;
 const store = useStore();
 const editorSetting = computed<EditorStyleProps>(() => {
 	return store.state.editor.style;
@@ -258,6 +268,9 @@ const editingComponentType = computed<string>(() => {
 const editingComponentId = computed<string | null>(() => {
 	return store.state.editor.editingComponentId;
 });
+/**
+ * @description: 正在编辑的组件
+ */
 const editingComponent = computed<FvComponentBase>(() => {
 	const editingComponentId: string = store.state.editor.editingComponentId;
 	const chartList: FvComponentList | null = store.state.editor.components;
@@ -311,6 +324,9 @@ watchEffect(() => {
 	if (color.value) {
 		change(color.value);
 	}
+});
+onMounted(() => {
+	getList();
 });
 </script>
 <style lang="scss" scoped>

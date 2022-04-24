@@ -30,5 +30,12 @@ const contextMenu = ref([
 	line-height: 30px;
 	font-size: 14px;
 	color: $color-black;
+	display: flex;
+	justify-content: center;
+	flex-direction: column;
+	background-color: $color-primary;
+	.menu {
+		cursor: pointer;
+	}
 }
 </style>

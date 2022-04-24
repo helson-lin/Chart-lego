@@ -1,5 +1,6 @@
 export default {
 	value: "https:/pic.kblue.site/tab-l1.png",
+	imgUrl: "https://pic.kblue.site/img/20220423225427.png",
 	type: "image",
 	styleOption: {
 		width: 150,

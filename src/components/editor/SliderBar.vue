@@ -1,7 +1,13 @@
 <template>
 	<div class="slider-bar">
-		<bar-chart-outlined class="icon" @click="emitIndex(0)" />
-		<sliders-outlined class="icon" @click="emitIndex(1)" />
+		<div class="slider-item">
+			<bar-chart-outlined class="icon" @click="emitIndex(0)" />
+			<span class="item-name">图表</span>
+		</div>
+		<div class="slider-item">
+			<sliders-outlined class="icon" @click="emitIndex(1)" />
+			<span class="item-name">装饰器</span>
+		</div>
 	</div>
 </template>
 <script lang="ts" setup>
@@ -20,7 +26,7 @@ const emitIndex = (index: number) => {
 </script>
 <style lang="scss" scoped>
 .slider-bar {
-	width: 60px;
+	width: 80px;
 	height: 100%;
 	background: #fff;
 	display: flex;
@@ -30,17 +36,24 @@ const emitIndex = (index: number) => {
 	padding: 10px 0;
 	box-sizing: border-box;
 	border-right: 1px solid #ccc;
+	.slider-item {
+		display: inline-flex;
+		flex-direction: column;
+		margin-bottom: 20px;
+		&:hover {
+			// background-color: rgba(127, 157, 213, 0.1);
+			// padding: 0 5px;
+			// box-sizing: border-box;
+			// border-radius: 5px;
+		}
+		.item-name {
+			font-size: 11px;
+		}
+	}
 	.icon {
 		font-size: 24px;
-		margin-bottom: 20px;
 		cursor: pointer;
 		padding: 5px 0;
-		&:hover {
-			background-color: rgba(127, 157, 213, 0.1);
-			padding: 5px;
-			box-sizing: border-box;
-			border-radius: 5px;
-		}
 	}
 }
 </style>
