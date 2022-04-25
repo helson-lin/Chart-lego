@@ -57,16 +57,16 @@ onMounted(() => {
 	.decorator {
 		width: 100%;
 		height: 40px;
-		line-height: 40px;
 		margin-bottom: 20px;
 		font-size: 18px;
-		border: 1px solid #ccc;
+		//border: 1px solid #ccc;
 		font-weight: 400;
-		background-color: rgba($color: $color-primary, $alpha: 0.2);
 		cursor: pointer;
 		img {
 			width: 100%;
 			height: 100%;
+			backdrop-filter: blur(12px);
+			box-shadow: $shadow-shallow;
 		}
 		&.draging {
 			cursor: grabbing;

@@ -49,11 +49,12 @@ export interface BaseComponent<T> {
 	name: string;
 	type: string;
 	img?: string;
+	value?: string;
 	styleOption: StyleOption<T>;
 }
 type TextAlign = "left" | "center" | "right" | "justify";
 export interface DecoratorFactory {
-	value: any;
+	value: string | number;
 	font?: Font;
 	color?: string;
 	textAlign?: TextAlign;
@@ -64,9 +65,7 @@ export interface ChartComponentExtends {
 	renderFuc?: Function;
 }
 
-export type FvComponent<T, K extends undefined | any> = K extends undefined
-	? BaseComponent<T>
-	: BaseComponent<T> & Parse<K>;
+export type FvComponent<T, K> = Mixin<BaseComponent<T>, K>;
 
 export type FvComponentList = FvComponent<
 	DecoratorFactory,

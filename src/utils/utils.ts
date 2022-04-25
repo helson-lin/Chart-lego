@@ -45,7 +45,7 @@ export function analysisRedirectUrl(url: string): {
  * @param {chartList} 图表
  */
 export function stringifyChartComponent(
-	componentList: FvComponentBase[] | null
+	componentList: FvComponentBase[]
 ): string {
 	if (!componentList) return "";
 	const chartListWithStr = componentList.map((component) => {
@@ -69,6 +69,7 @@ export function stringifyChartComponent(
 				name,
 				img,
 				type,
+				value: component.value,
 				styleOption: JSON.stringify(styleOption),
 			};
 		}

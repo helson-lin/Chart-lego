@@ -67,6 +67,7 @@ import {
 	DownloadOutlined,
 } from "@ant-design/icons-vue";
 import { v4 as uuidv4 } from "uuid";
+import lodash from "lodash";
 import Header from "../components/common/Header.vue";
 import Editor from "../components/editor/Editor.vue";
 import Input from "../components/common/Input.vue";
@@ -114,48 +115,26 @@ export default {
 			isOpenMenuBar.value = !isOpenMenuBar.value;
 		};
 		const canvasName = ref("自定义视图");
-		const getLoction = () => {
-			const componentBox: HTMLElement | null = document.getElementById("h-ed");
-			if (!componentBox) return;
-			const componentList = componentBox.children;
-			const componentListPos = [];
-			for (let i = 0; i < componentList.length - 1; i++) {
-				const { id } = componentList[i];
-				const { left, top, width, height, transform } = getComputedStyle(
-					componentList[i]
-				);
-				console.log(getComputedStyle(componentList[i]));
-				componentListPos.push({
-					uid: id,
-					left: Number(left.replace("px", "")),
-					top: Number(top.replace("px", "")),
-					width: Number(width.replace("px", "")),
-					height: Number(height.replace("px", "")),
-					transform,
-				});
-			}
-			console.log("定位", "handleDrop", componentListPos);
-		};
 		const saveEditCanvas = async () => {
 			const editCanvas: EditorCavansProps = store.getters["editor/getEditor"];
 			const { uid, name, component, style } = editCanvas;
 			console.log("componet", component);
 			if (!component) return;
-			const componentWidthHandedLT = component.map((item) => {
-				const { styleOption, apiOption } = item;
-				const newstyleOption = Object.assign({}, styleOption);
-				return { ...item, styleOption: newstyleOption };
-			});
-			console.log(componentWidthHandedLT, "component");
+			const componentCopy = lodash.cloneDeep(component);
+			// const componentWidthHandedLT = component.map((item) => {
+			// 	const { styleOption, apiOption } = item;
+			// 	const newstyleOption = lodash.cloneDeep(styleOption);
+			// 	return { ...item, styleOption: newstyleOption };
+			// });
+			console.log(componentCopy, "component");
 			// //这里的转换不可以使用JSON.stringify 回忽略函数
 			const postData = {
 				uid: uid,
 				name: canvasName.value,
-				component: stringifyChartComponent(
-					componentWidthHandedLT as FvComponentBase[]
-				),
+				component: stringifyChartComponent(componentCopy as FvComponentBase[]),
 				style: JSON.stringify(style),
 			};
+			console.log(stringifyChartComponent(componentCopy as FvComponentBase[]));
 			const res = await addCanvas(postData);
 			if (res.data.code === 0) {
 				message.success("新增视图成功！");

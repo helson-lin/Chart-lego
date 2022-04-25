@@ -27,23 +27,31 @@ export const renderByList = (
  * @param {*}
  * @return {*}
  */
-export const computedStyle = (options: StyleOption<DecoratorFactory>) => {
-	const style: { [key: string]: any } = {
+export const locationStyle = (
+	options: StyleOption<DecoratorFactory>
+): { [key: string]: unknown } => {
+	const style: { [key: string]: unknown } = {
 		width: `${options.width}px`,
 		height: `${options.height}px`,
 		left: `${options.left}px`,
 		top: `${options.top}px`,
-		zIndex: `${options.zIndex}`,
 		position: "absoulute",
 	};
 	if (options.color) {
 		style.color = options.color;
 	}
+	if (options.zIndex) {
+		style.zIndex = options.zIndex;
+	}
 	if (options.font) {
 		const { fontSize, fontFamily, fontWeight } = options.font;
 		if (fontSize) style.fontSize = `${fontSize}px`;
+		if (fontSize) style.fontHeight = `${fontSize + 10}px`;
 		if (fontFamily) style.fontFamily = fontFamily;
 		if (fontWeight) style.fontWeight = fontWeight;
+	}
+	if (options.textAlign) {
+		style.textAlign = options.textAlign;
 	}
 	return style;
 };

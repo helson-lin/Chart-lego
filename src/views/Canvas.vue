@@ -6,8 +6,9 @@
 				v-for="component in componentList"
 				:key="component.uid"
 				:id="`canvas${component.uid}`"
+				v-model:value="component.value"
 				:is="component.type === 'chart' ? 'chart' : component.name"
-				:style="getComputedStyle(component.styleOption)"
+				:style="locationStyle(component.styleOption)"
 			></component>
 		</div>
 	</div>
@@ -19,6 +20,7 @@ import { renderByList } from "../hooks/useComponent";
 import { ChartOptionsProps } from "@/types/chart";
 import { StyleOption, DecoratorFactory } from "@/types/editor";
 import formatterChartOption from "@/utils/formatterChartOption";
+import { locationStyle } from "@/hooks/useComponent";
 import { EditorStyleProps, FvComponentBase } from "@/types/editor";
 import { message } from "ant-design-vue";
 import { useRoute } from "vue-router";
@@ -26,21 +28,6 @@ const componentList = ref<FvComponentBase[]>();
 const canvasStyle = ref<EditorStyleProps>();
 const instance = getCurrentInstance();
 const route = useRoute();
-const getComputedStyle = (
-	styleOption: StyleOption<DecoratorFactory | undefined>
-) => {
-	const style = {
-		width: `${styleOption.width}px`,
-		height: `${styleOption.height}px`,
-		left: `${styleOption.left}px`,
-		top: `${styleOption.top}px`,
-		position: "absoulute",
-	};
-	if (styleOption.color) {
-		style.color = styleOption.color;
-	}
-	return style;
-};
 const editorStyle = computed(() => {
 	if (!canvasStyle.value) return "";
 	const baseStyle = {

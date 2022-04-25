@@ -2,32 +2,13 @@
 	<div class="fv-text fv-decorator" v-bind="$attrs" v-html="value"></div>
 </template>
 <script lang="ts" setup>
-import { defineProps, withDefaults, defineEmits, ref } from "vue";
-import { DecoratorStyleOptions } from "@/types/decorator";
+import { defineProps, withDefaults } from "vue";
 export interface FvTextProps {
 	value: string;
-	styleOption: DecoratorStyleOptions;
 }
-const emits = defineEmits<{
-	(e: "update:value", val: string): void;
-}>();
 withDefaults(defineProps<FvTextProps>(), {
-	value: "demo",
-	styleOption: () => {
-		return {
-			width: 300,
-			height: 140,
-			top: 0,
-			left: 0,
-		};
-	},
+	value: "文本组件",
 });
-const disabled = ref<boolean>(true);
-const inputChange = (e: Event) => {
-	const el = e.target;
-	if (!el) return;
-	emits("update:value", el.value);
-};
 </script>
 <style lang="scss" scoped>
 .fv-text {

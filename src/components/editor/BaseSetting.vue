@@ -179,7 +179,7 @@
 						/>
 					</div>
 				</div>
-				<div class="option-item color">
+				<div class="option-item color" v-if="editingComponent.value">
 					<div class="option-label">装饰器值</div>
 					<div class="option-value picker">
 						<Input

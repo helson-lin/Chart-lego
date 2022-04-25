@@ -1,7 +1,6 @@
 export default {
-	value: "文字组件",
 	type: "text",
-	imgUrl: "https://pic.kblue.site/img/fv-text-comp12.png",
+	imgUrl: "https://pic.kblue.site/img/fv-time-comp12.png",
 	styleOption: {
 		width: 150,
 		height: 40,

@@ -49,6 +49,7 @@ import Moveable from "moveable";
 import { useStore } from "vuex";
 import { DragNodeEvent } from "ant-design-vue/lib/vc-tree/interface";
 import { decoratorsRender } from "../decorator/index";
+import { locationStyle } from "@/hooks/useComponent";
 import {
 	ChartOptionsProps,
 	StyleOptionProps,
@@ -114,36 +115,6 @@ const editorStyle = computed(() => {
 	};
 	return baseStyle;
 });
-// 图表组件的位置的大小样式信息
-const locationStyle = (
-	options: StyleOption<DecoratorFactory | undefined>,
-	uid: string
-): { [key: string]: unknown } => {
-	const style: { [key: string]: unknown } = {
-		width: `${options.width}px`,
-		height: `${options.height}px`,
-		left: `${options.left}px`,
-		top: `${options.top}px`,
-		position: "absoulute",
-	};
-	if (options.color) {
-		style.color = options.color;
-	}
-	if (options.zIndex) {
-		style.zIndex = options.zIndex;
-	}
-	if (options.font) {
-		const { fontSize, fontFamily, fontWeight } = options.font;
-		if (fontSize) style.fontSize = `${fontSize}px`;
-		if (fontSize) style.fontHeight = `${fontSize + 10}px`;
-		if (fontFamily) style.fontFamily = fontFamily;
-		if (fontWeight) style.fontWeight = fontWeight;
-	}
-	if (options.textAlign) {
-		style.textAlign = options.textAlign;
-	}
-	return style;
-};
 // 监听编辑器拖拽
 const dragListen = () => {
 	const editorDiv = document.getElementById("h-ed");
