@@ -307,10 +307,9 @@ const fileList = ref([]);
 const gradientColor = ref(
 	"linear-gradient(0deg, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 100%)"
 );
-const handleChange = ({ file: {[key: string]: string}}) => {
+const handleChange = ({ file }) => {
 	if (file.status === "done") {
 		const url = file.response.data.url;
-		console.log(file, "文件上完毕");
 		store.commit("editor/setStyle", { ...editorSetting.value, imgUrl: url });
 	}
 };
@@ -460,17 +459,6 @@ onMounted(() => {
 				&:nth-child(1) {
 					margin-right: 10px;
 				}
-			}
-			input::after {
-				position: absolute;
-				right: 0;
-				top: 0;
-				content: "nene";
-				display: block;
-				width: 30px;
-				height: 35px;
-				line-height: 35px;
-				color: $color-text-secondary;
 			}
 			input::-webkit-outer-spin-button,
 			input:-webkit-inner-spin-button {

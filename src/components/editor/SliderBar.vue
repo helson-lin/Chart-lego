@@ -12,7 +12,7 @@
 	</div>
 </template>
 <script lang="ts" setup>
-import { defineProps, defineEmits, ref, Component } from "vue";
+import { defineProps, defineEmits, ref } from "vue";
 import {
 	BarChartOutlined,
 	SlidersOutlined,
@@ -28,7 +28,7 @@ const emit = defineEmits<{
 const emitIndex = (index: number) => {
 	emit("update:index", index);
 };
-const list = ref<{ name: string; icon: Component }[]>([
+const list = ref<{ name: string; icon: unknown }[]>([
 	{
 		name: "图表",
 		icon: BarChartOutlined,
