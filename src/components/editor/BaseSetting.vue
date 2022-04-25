@@ -35,7 +35,8 @@
 						<a-upload-dragger
 							v-model:fileList="fileList"
 							name="file"
-							:multiple="true"
+							:multiple="false"
+							maxCount="1"
 							:action="fileUploadUrl"
 							@change="handleChange"
 							@remove="remove"
@@ -179,14 +180,28 @@
 						/>
 					</div>
 				</div>
-				<div class="option-item color" v-if="editingComponent.value">
-					<div class="option-label">装饰器值</div>
+				<div class="option-item" v-if="editingComponent.value !== undefined">
+					<div class="option-label">装饰器值{{ editingComponent.type }}</div>
 					<div class="option-value picker">
 						<Input
 							v-model:data="editingComponent.value"
 							type="textarea"
 							placeholder="请输入"
 							subfix="文本"
+						/>
+					</div>
+				</div>
+				<div
+					class="option-item"
+					v-if="editingComponent.styleOption.zIndex !== undefined"
+				>
+					<div class="option-label">装饰器层级</div>
+					<div class="option-value picker">
+						<Input
+							v-model:data="editingComponent.styleOption.zIndex"
+							type="number"
+							placeholder="请输入"
+							subfix="层级"
 						/>
 					</div>
 				</div>
@@ -251,11 +266,7 @@ import {
 	EditorStyleProps,
 	FvComponentBase,
 	FvComponentList,
-	StyleOption,
-	DecoratorFactory,
 } from "@/types/editor";
-import { ChartOptionsProps } from "@/types/chart";
-import { DecoratorOptionProps } from "@/types/decorator";
 const activeKey = ref(0);
 const chartSetting = ref(0);
 const decoratorSetting = ref(0);
@@ -296,9 +307,10 @@ const fileList = ref([]);
 const gradientColor = ref(
 	"linear-gradient(0deg, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 100%)"
 );
-const handleChange = ({ file }) => {
+const handleChange = ({ file: {[key: string]: string}}) => {
 	if (file.status === "done") {
 		const url = file.response.data.url;
+		console.log(file, "文件上完毕");
 		store.commit("editor/setStyle", { ...editorSetting.value, imgUrl: url });
 	}
 };

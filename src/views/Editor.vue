@@ -35,6 +35,7 @@
 				<slider-bar v-model:index="compoentTypeIndex" />
 				<ChartList :list="ChartList" v-show="compoentTypeIndex === 0" />
 				<DecoratorList v-show="compoentTypeIndex === 1" />
+				<MaterialList v-show="compoentTypeIndex === 2" />
 				<div class="tool-bar-ico" @click="closeOrOpenMenu">
 					<left-circle-filled v-if="isOpenMenuBar" />
 					<right-circle-filled v-else />
@@ -75,6 +76,7 @@ import BaseSetting from "../components/editor/BaseSetting.vue";
 import SliderBar from "../components/editor/SliderBar.vue";
 import ChartList from "../components/editor/ChartList.vue";
 import DecoratorList from "../components/editor/DecoratorList.vue";
+import MaterialList from "../components/editor/MaterialList.vue";
 import { EditorCavansProps } from "../store/editor";
 import { addCanvas } from "../interface/canvas";
 import { stringifyChartComponent } from "../utils/utils";
@@ -99,6 +101,7 @@ export default {
 		Resize,
 		Input,
 		SliderBar,
+		MaterialList,
 	},
 	setup() {
 		const route = useRoute();
@@ -195,7 +198,7 @@ export default {
 	display: flex;
 	width: 100%;
 	height: calc(100% - 50px);
-	background: $background-color-primary;
+	background: $background-color-c;
 	overflow: hidden;
 	&-l,
 	&-r {

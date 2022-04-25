@@ -12,6 +12,7 @@ withDefaults(defineProps<FvTextProps>(), {
 </script>
 <style lang="scss" scoped>
 .fv-text {
+	min-width: fit-content;
 	padding: 5px 10px;
 	box-sizing: border-box;
 	text-align: center;

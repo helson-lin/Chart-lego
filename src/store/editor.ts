@@ -3,11 +3,13 @@ import { ChartOptionsProps } from "@/types/chart";
 import { DecoratorOptionProps, Decorator } from "@/types/decorator";
 import { GloablDataProps } from "./index";
 import { v4 as uuidv4 } from "uuid";
+import lodash from "lodash";
 import {
 	EditorStyleProps,
 	FvComponentList,
 	FvComponentBase,
 } from "@/types/editor";
+import { number } from "echarts";
 
 export type CutomChartOption = {};
 export interface DecoratorOptionsWidthType extends DecoratorOptionProps {
@@ -88,6 +90,37 @@ const editor: Module<EditorStoreProps, GloablDataProps> = {
 			state.editingComponentType = type;
 		},
 		/**
+		 * @description:  删除正在编辑的组件
+		 * @param {*} state
+		 * @return {*}
+		 */
+		removeEditingComponent(state) {
+			if (!state.components || !state.editingComponentId) return;
+			state.components = state.components.filter(
+				(component) => component.uid !== state.editingComponentId
+			);
+			state.editingComponentType = null;
+			state.editingComponentId = null;
+		},
+		/**
+		 * @description: 复制正在使用的组件
+		 */
+		copyComponent(state) {
+			if (!state.components) return;
+			const editComponent = state.components.filter(
+				(component) => component.uid === state.editingComponentId
+			);
+			if (editComponent && editComponent.length === 1) {
+				const copyComponent = lodash.cloneDeep(editComponent[0]);
+				const uid = uuidv4();
+				copyComponent.uid = uid;
+				state.components.push(copyComponent);
+				state.editingComponentId = uid;
+				state.editingComponentType = editComponent[0].type;
+				// 设置编辑状态的组件
+			}
+		},
+		/**
 		 * @description: 设置组件的宽高
 		 * @return {*}
 		 */
@@ -108,9 +141,26 @@ const editor: Module<EditorStoreProps, GloablDataProps> = {
 			const { uid, top, left } = idAndTl;
 			const items = state.components.filter((item) => item.uid === uid);
 			if (items.length === 0) return;
-			console.log("setComponentTl", items[0].uid);
 			items[0].styleOption.top = top;
 			items[0].styleOption.left = left;
+		},
+		/**
+		 * @description: 设置组件的层级
+		 * @return {*}
+		 */
+		setCompoentZindex(state, dir: "up" | "down") {
+			if (!state.components) return;
+			const items = state.components.filter(
+				(item) => item.uid === state.editingComponentId
+			);
+			if (items.length === 0) return;
+			if (typeof items[0].styleOption.zIndex !== "number")
+				items[0].styleOption.zIndex = 1;
+			if (dir === "up") {
+				items[0].styleOption.zIndex += 1;
+			} else {
+				items[0].styleOption.zIndex -= 1;
+			}
 		},
 		/**
 		 * @description: 设置编辑器的样式

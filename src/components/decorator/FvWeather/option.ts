@@ -1,6 +1,6 @@
 export default {
 	value: "文字组件",
-	type: "text",
+	type: "img",
 	imgUrl: "https://pic.kblue.site/img/fv-weather-comp12.png",
 	styleOption: {
 		width: 150,

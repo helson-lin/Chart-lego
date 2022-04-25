@@ -6,16 +6,18 @@
 			:key="item.name"
 			@click="emitIndex(inx)"
 		>
-			<bar-chart-outlined class="icon" v-show="inx === 0" />
-			<sliders-outlined class="icon" v-show="inx === 1" />
-			<!-- <component class="icon" :is="item.icon" /> -->
+			<component class="icon" :is="item.icon" />
 			<span class="item-name">{{ item.name }}</span>
 		</div>
 	</div>
 </template>
 <script lang="ts" setup>
-import { defineProps, defineEmits, ref } from "vue";
-import { BarChartOutlined, SlidersOutlined } from "@ant-design/icons-vue";
+import { defineProps, defineEmits, ref, Component } from "vue";
+import {
+	BarChartOutlined,
+	SlidersOutlined,
+	CloudUploadOutlined,
+} from "@ant-design/icons-vue";
 interface Props {
 	index: number;
 }
@@ -26,14 +28,18 @@ const emit = defineEmits<{
 const emitIndex = (index: number) => {
 	emit("update:index", index);
 };
-const list = ref<{ name: string; icon: string }[]>([
+const list = ref<{ name: string; icon: Component }[]>([
 	{
 		name: "图表",
-		icon: "BarChartOutlined",
+		icon: BarChartOutlined,
 	},
 	{
 		name: "装饰器",
-		icon: "SlidersOutlined",
+		icon: SlidersOutlined,
+	},
+	{
+		name: "素材",
+		icon: CloudUploadOutlined,
 	},
 ]);
 </script>
@@ -48,6 +54,7 @@ const list = ref<{ name: string; icon: string }[]>([
 	justify-items: center;
 	box-sizing: border-box;
 	border-right: 1px solid #ccc;
+	overflow: hidden;
 	.slider-item {
 		width: 100%;
 		display: inline-flex;
@@ -57,16 +64,17 @@ const list = ref<{ name: string; icon: string }[]>([
 		cursor: pointer;
 		&.active {
 			color: $color-primary;
-			opacity: 0.9;
 		}
 		.item-name {
 			font-size: 11px;
 		}
 	}
 	.icon {
-		font-size: 24px;
+		width: 100%;
+		font-size: 20px;
 		cursor: pointer;
 		padding: 5px 0;
+		box-sizing: border-box;
 	}
 }
 </style>

@@ -19,7 +19,7 @@
 				:id="component.uid"
 				:class="['h-dragable']"
 				v-model:value="component.value"
-				:style="locationStyle(component.styleOption, component.uid)"
+				:style="locationStyle(component.styleOption)"
 				:is="component.type === 'chart' ? 'chart' : component.name"
 				@contextmenu.prevent="openMenu"
 				@click="chartClick($event, component.type)"
@@ -43,13 +43,17 @@ import {
 	ScriptHTMLAttributes,
 	watchEffect,
 	ref,
+	h,
 } from "vue";
+import { notification } from "ant-design-vue";
+import { SmileOutlined } from "@ant-design/icons-vue";
 import ContextMenu from "./ContextMenu.vue";
 import Moveable from "moveable";
 import { useStore } from "vuex";
 import { DragNodeEvent } from "ant-design-vue/lib/vc-tree/interface";
 import { decoratorsRender } from "../decorator/index";
 import { locationStyle } from "@/hooks/useComponent";
+import shortcuts from "@/hooks/useKeyBoard";
 import {
 	ChartOptionsProps,
 	StyleOptionProps,
@@ -314,29 +318,55 @@ const renderByList = () => {
 	chartComponentList.value = _chartComponentList;
 };
 /**
- * @description: 键盘keydown事件监听
- * @param: e: KeyboardEvent
- * @return: null
+ * @description: 注册键盘事件
  */
-const keydown = (e: KeyboardEvent) => {
-	if (e.key === "Control") {
-		draggable.value = true;
-	}
-};
-/**
- * @description: 键盘keyup事件监听
- * @param: e: KeyboardEvent
- * @return: null
- */
-const keyup = (e: KeyboardEvent) => {
-	if (e.key === "Control") {
-		draggable.value = false;
-	}
-};
-// 监听键盘事件
 const keyBoard = () => {
-	window.addEventListener("keydown", keydown, false);
-	window.addEventListener("keyup", keyup, false);
+	// 注册control + 滚轮缩放
+	shortcuts.register("control", (type) => {
+		if (type === "keydown") {
+			draggable.value = true;
+		} else {
+			draggable.value = false;
+		}
+	});
+	// 注册DEL删除快捷键
+	shortcuts.register("ctrl backspace", (type) => {
+		if (type === "keyup") {
+			store.commit("editor/removeEditingComponent");
+			if (moveable) {
+				targetElement = null;
+				moveable.destroy();
+				moveable = null;
+			}
+		}
+	});
+	// 注册复制快捷键
+	shortcuts.register("ctrl c", (type) => {
+		if (type === "keydown") return;
+		console.warn("ctrl c", type);
+		store.commit("editor/copyComponent");
+		const id = store.state.editor.editingComponentId;
+		const editingEl = document.getElementById(id);
+		if (moveable && editingEl) {
+			moveable.target = editingEl;
+			notification.info({
+				message: "操作提示",
+				description: "您已复制了组件，可以拖拽布局",
+				icon: () => h(SmileOutlined, { style: "color: #108ee9" }),
+			});
+		}
+	});
+	// 快速设置层级
+	shortcuts.register("ctrl -", (type) => {
+		if (type === "keydown") return;
+		console.warn("降低层级");
+		store.commit("editor/setCompoentZindex", "down");
+	});
+	shortcuts.register("ctrl =", (type) => {
+		if (type === "keydown") return;
+		store.commit("editor/setCompoentZindex", "up");
+		console.warn("提高层级");
+	});
 };
 const drop = (e: DropEvent) => {
 	const el = e.target;
