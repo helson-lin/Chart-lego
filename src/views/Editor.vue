@@ -35,6 +35,7 @@
 				<slider-bar v-model:index="compoentTypeIndex" />
 				<ChartList :list="ChartList" v-show="compoentTypeIndex === 0" />
 				<DecoratorList v-show="compoentTypeIndex === 1" />
+				<MaterialList v-show="compoentTypeIndex === 2" />
 				<div class="tool-bar-ico" @click="closeOrOpenMenu">
 					<left-circle-filled v-if="isOpenMenuBar" />
 					<right-circle-filled v-else />
@@ -67,6 +68,7 @@ import {
 	DownloadOutlined,
 } from "@ant-design/icons-vue";
 import { v4 as uuidv4 } from "uuid";
+import lodash from "lodash";
 import Header from "../components/common/Header.vue";
 import Editor from "../components/editor/Editor.vue";
 import Input from "../components/common/Input.vue";
@@ -74,6 +76,7 @@ import BaseSetting from "../components/editor/BaseSetting.vue";
 import SliderBar from "../components/editor/SliderBar.vue";
 import ChartList from "../components/editor/ChartList.vue";
 import DecoratorList from "../components/editor/DecoratorList.vue";
+import MaterialList from "../components/editor/MaterialList.vue";
 import { EditorCavansProps } from "../store/editor";
 import { addCanvas } from "../interface/canvas";
 import { stringifyChartComponent } from "../utils/utils";
@@ -81,6 +84,7 @@ import Resize from "../components/editor/Resize.vue";
 import { onMounted, ref, watchEffect } from "vue";
 import { useStore } from "vuex";
 import { ChartOptionsProps } from "@/types/chart";
+import { FvComponentBase } from "@/types/editor";
 import { useRoute, useRouter } from "vue-router";
 import { message } from "ant-design-vue";
 export default {
@@ -97,6 +101,7 @@ export default {
 		Resize,
 		Input,
 		SliderBar,
+		MaterialList,
 	},
 	setup() {
 		const route = useRoute();
@@ -113,54 +118,26 @@ export default {
 			isOpenMenuBar.value = !isOpenMenuBar.value;
 		};
 		const canvasName = ref("自定义视图");
-		const getLoction = () => {
-			const componentBox: HTMLElement | null = document.getElementById("h-ed");
-			if (!componentBox) return;
-			const componentList = componentBox.children;
-			const componentListPos = [];
-			for (let i = 0; i < componentList.length - 1; i++) {
-				const { id } = componentList[i];
-				const { left, top, width, height, transform } = getComputedStyle(
-					componentList[i]
-				);
-				console.log(getComputedStyle(componentList[i]));
-				componentListPos.push({
-					uid: id,
-					left: Number(left.replace("px", "")),
-					top: Number(top.replace("px", "")),
-					width: Number(width.replace("px", "")),
-					height: Number(height.replace("px", "")),
-					transform,
-				});
-			}
-			console.log("定位", "handleDrop", componentListPos);
-		};
 		const saveEditCanvas = async () => {
 			const editCanvas: EditorCavansProps = store.getters["editor/getEditor"];
 			const { uid, name, component, style } = editCanvas;
 			console.log("componet", component);
 			if (!component) return;
-			const componentWidthHandedLT = component.map((item) => {
-				const { uid, name, styleOption, renderFuc, apiOption } = item;
-				const newstyleOption = Object.assign({}, styleOption);
-				if (newstyleOption.distLt) {
-					// newstyleOption.top = newstyleOption.distLt[1];
-					// newstyleOption.left = newstyleOption.distLt[0];
-					delete newstyleOption.distLt;
-				}
-				console.log(newstyleOption, item);
-				return { uid, name, styleOption: newstyleOption, renderFuc, apiOption };
-			});
-			console.log(componentWidthHandedLT, "component");
+			const componentCopy = lodash.cloneDeep(component);
+			// const componentWidthHandedLT = component.map((item) => {
+			// 	const { styleOption, apiOption } = item;
+			// 	const newstyleOption = lodash.cloneDeep(styleOption);
+			// 	return { ...item, styleOption: newstyleOption };
+			// });
+			console.log(componentCopy, "component");
 			// //这里的转换不可以使用JSON.stringify 回忽略函数
 			const postData = {
 				uid: uid,
 				name: canvasName.value,
-				component: stringifyChartComponent(
-					componentWidthHandedLT as ChartOptionsProps[]
-				),
+				component: stringifyChartComponent(componentCopy as FvComponentBase[]),
 				style: JSON.stringify(style),
 			};
+			console.log(stringifyChartComponent(componentCopy as FvComponentBase[]));
 			const res = await addCanvas(postData);
 			if (res.data.code === 0) {
 				message.success("新增视图成功！");
@@ -221,7 +198,7 @@ export default {
 	display: flex;
 	width: 100%;
 	height: calc(100% - 50px);
-	background: $background-color-primary;
+	background: $background-color-c;
 	overflow: hidden;
 	&-l,
 	&-r {

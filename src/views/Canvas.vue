@@ -1,40 +1,33 @@
 <template>
 	<div class="fv-canvas">
 		<div class="canvas-view" :style="editorStyle">
-			<div
+			<component
 				class="chart"
-				v-for="chart in componentList"
-				:key="chart.uid"
-				:id="`canvas${chart.uid}`"
-				:style="getComputedStyle(chart.styleOption)"
-			></div>
+				v-for="component in componentList"
+				:key="component.uid"
+				:id="`canvas${component.uid}`"
+				v-model:value="component.value"
+				:is="component.type === 'chart' ? 'chart' : component.name"
+				:style="locationStyle(component.styleOption)"
+			></component>
 		</div>
 	</div>
 </template>
 <script lang="ts" setup>
 import { getCurrentInstance, onMounted, ref, computed, watchEffect } from "vue";
 import { getCanvasById } from "../interface/canvas";
-import { renderByList } from "../hooks/useChart";
-import { ChartOptionsProps, StyleOptionProps } from "@/types/chart";
-import formatterChartOption, {
-	ApiChartOption,
-} from "@/utils/formatterChartOption";
-import { EditorStyleProps } from "@/types/editor";
+import { renderByList } from "../hooks/useComponent";
+import { ChartOptionsProps } from "@/types/chart";
+import { StyleOption, DecoratorFactory } from "@/types/editor";
+import formatterChartOption from "@/utils/formatterChartOption";
+import { locationStyle } from "@/hooks/useComponent";
+import { EditorStyleProps, FvComponentBase } from "@/types/editor";
 import { message } from "ant-design-vue";
 import { useRoute } from "vue-router";
-const componentList = ref<ChartOptionsProps[]>();
+const componentList = ref<FvComponentBase[]>();
 const canvasStyle = ref<EditorStyleProps>();
 const instance = getCurrentInstance();
 const route = useRoute();
-const getComputedStyle = (styleOption: StyleOptionProps) => {
-	return {
-		width: `${styleOption.width}px`,
-		height: `${styleOption.height}px`,
-		left: `${styleOption.left}px`,
-		top: `${styleOption.top}px`,
-		position: "absoulute",
-	};
-};
 const editorStyle = computed(() => {
 	if (!canvasStyle.value) return "";
 	const baseStyle = {
@@ -53,9 +46,11 @@ const getCanvas = async (uid: string) => {
 		const components = JSON.parse(component);
 		(componentList.value as unknown) = components.map((item: any) => {
 			const items = item;
-			items.apiOption = JSON.parse(items.apiOption);
 			items.styleOption = JSON.parse(items.styleOption);
-			items.renderFuc = formatterChartOption.execData(items.renderFuc);
+			if (item.type === "chart") {
+				items.apiOption = JSON.parse(items.apiOption);
+				items.renderFuc = formatterChartOption.execData(items.renderFuc);
+			}
 			return items;
 		});
 		canvasStyle.value = JSON.parse(style) as EditorStyleProps;

@@ -1,4 +1,7 @@
 import CONFIG from "../config";
+/**
+ * @description: 输出版本信息
+ */
 const logVersion = () => {
 	console.log(
 		`%c %c\n十年可见春去秋来，百年可证生老病死；\n千年可叹王朝更替，万年可见斗转星移；\n凡人如果用一天的视野，去窥探百万年的天地，是否就如同井底之蛙。\n%c Fano View %c 版本：${CONFIG.version} `,

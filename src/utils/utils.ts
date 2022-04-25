@@ -1,5 +1,6 @@
 import parse from "url-parse";
-import { ChartOptionsProps } from "@/types/chart";
+import { Component, createApp } from "vue";
+import { FvComponentBase } from "@/types/editor";
 /**
  * @description: 获取本地cookie
  * @param {string} sName cookie的名称
@@ -38,39 +39,63 @@ export function analysisRedirectUrl(url: string): {
 		pathname: parsed.pathname,
 	};
 }
-function objectToString(obj: { [key: string]: any }): string {
-	const keys = Object.keys(obj);
-	let str = "{";
-	keys.forEach((key) => {
-		if (typeof obj[key] !== "object") {
-			str += `${key}:${obj[key]},`;
-		} else {
-			const objectType = Object.prototype.toString.call(obj[key]);
-			if (objectType === "[object Object]") {
-				str += `${key}:${objectToString(obj[key])},`;
-			} else if (objectType === "[object Function]") {
-				str += `${key}:${obj[key] + ""},`;
-			}
-		}
-	});
-	return str + "}";
-}
 
+/**
+ * @description: 图表组件转换为string
+ * @param {chartList} 图表
+ */
 export function stringifyChartComponent(
-	chartList: ChartOptionsProps[] | null
+	componentList: FvComponentBase[]
 ): string {
-	if (!chartList) return "";
-	const chartListWithStr = chartList.map((chart) => {
-		const { uid, name, img, styleOption, apiOption, renderFuc } = chart;
-		const chartWidthRenderStr = {
-			uid,
-			name,
-			img,
-			styleOption: JSON.stringify(styleOption),
-			apiOption: JSON.stringify(apiOption),
-			renderFuc: renderFuc + "",
-		};
-		return chartWidthRenderStr;
+	if (!componentList) return "";
+	const chartListWithStr = componentList.map((component) => {
+		const { uid, name, img, type, styleOption, apiOption, renderFuc } =
+			component;
+		let componentWidthRenderStr;
+		console.log("chart", component);
+		if (type === "chart") {
+			componentWidthRenderStr = {
+				uid,
+				name,
+				img,
+				type,
+				styleOption: JSON.stringify(styleOption),
+				apiOption: JSON.stringify(apiOption),
+				renderFuc: renderFuc + "",
+			};
+		} else {
+			componentWidthRenderStr = {
+				uid,
+				name,
+				img,
+				type,
+				value: component.value,
+				styleOption: JSON.stringify(styleOption),
+			};
+		}
+		return componentWidthRenderStr;
 	});
 	return JSON.stringify(chartListWithStr);
+}
+
+/**
+ * @description: 创建挂载组件
+ * @param {id} 挂载组件的父级的id
+ * @param {vue} 组件
+ * @param {option}  组件Props
+ */
+export function createAndMountTemplate(
+	id: string,
+	vue: Component,
+	option?: { [key: string]: string }
+) {
+	let component;
+	if (!option) {
+		component = createApp(vue);
+	} else {
+		component = createApp(vue, option);
+	}
+	const mountDom = document.getElementById(id);
+	if (!mountDom) throw new Error("will mount id dom can't be find");
+	component.mount(mountDom);
 }

@@ -4,26 +4,32 @@
 			class="decorator"
 			draggable="true"
 			v-for="decorator in decoratorList"
-			:key="decorator"
+			:key="decorator.uid"
 			@click="addDecorator(decorator)"
 			@dragstart="drag"
 		>
-			{{ decorator }}
+			<img
+				:src="decorator.imgUrl"
+				:alt="decorator.name"
+				:title="decorator.name"
+			/>
+			<!-- {{ decorator.name }}={{ decorator.imgUrl }} -->
 		</div>
 	</div>
 </template>
 <script lang="ts" setup>
+import lodash from "lodash";
+import { DecoratorOptionProps } from "@/types/decorator";
 import { v4 as uuidv4 } from "uuid";
 import { onMounted, ref } from "vue";
 import { useStore } from "vuex";
 import { getComponetsName } from "../decorator/index";
-const decoratorList = ref<string[]>([]);
+const decoratorList = ref<DecoratorOptionProps[]>([]);
 const store = useStore();
-const addDecorator = (decoratorName: string) => {
-	store.commit("editor/addDecorator", {
-		name: decoratorName,
-		uid: uuidv4(),
-	});
+const addDecorator = (decorator: DecoratorOptionProps) => {
+	const addDecorator = lodash.cloneDeep(decorator);
+	addDecorator.uid = uuidv4();
+	store.commit("editor/addComponent", addDecorator);
 };
 const drag = (e: DragEvent) => {
 	const el = e.target;
@@ -51,13 +57,17 @@ onMounted(() => {
 	.decorator {
 		width: 100%;
 		height: 40px;
-		line-height: 40px;
 		margin-bottom: 20px;
 		font-size: 18px;
-		border: 1px solid #ccc;
+		//border: 1px solid #ccc;
 		font-weight: 400;
-		background-color: rgba($color: $color-primary, $alpha: 0.2);
 		cursor: pointer;
+		img {
+			width: 100%;
+			height: 100%;
+			backdrop-filter: blur(12px);
+			box-shadow: $shadow-shallow;
+		}
 		&.draging {
 			cursor: grabbing;
 		}

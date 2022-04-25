@@ -16,6 +16,7 @@
 </template>
 <script lang="ts" setup>
 import { ref, computed, onMounted, h } from "vue";
+import lodash from "lodash";
 import { LoadingOutlined } from "@ant-design/icons-vue";
 import { useStore } from "vuex";
 import { v4 as uuidv4 } from "uuid";
@@ -27,9 +28,9 @@ import { getAllChart } from "@/interface/chart";
 const store = useStore();
 const loading = ref(true);
 const chartListData = ref<ChartOptionsProps[]>();
-const componentList = computed<ChartOptionsProps[]>(() => {
-	return store.state.editor.component;
-});
+/**
+ * @description: 设置加载loading
+ */
 const indicator = h(LoadingOutlined, {
 	style: {
 		fontSize: "28px",
@@ -37,6 +38,11 @@ const indicator = h(LoadingOutlined, {
 	},
 	spin: true,
 });
+/**
+ * @description: 获取图表列表
+ * @param {*}
+ * @return {*}
+ */
 const getChartList = async () => {
 	const res = await getAllChart();
 	if (res.data && res.data.code === 0) {
@@ -47,13 +53,15 @@ const getChartList = async () => {
 		loading.value = false;
 	}
 };
+/**
+ * @description: 新增图表到编辑器
+ * @param {*} chart
+ * @return {*}
+ */
 const addToEditor = (chart: ChartOptionsProps) => {
-	const newComponetList = componentList.value || [];
-	const chartWidthPosition = Object.assign({}, chart);
+	const chartWidthPosition = lodash.cloneDeep(chart);
 	chartWidthPosition.uid = uuidv4(); // 新的id
-	newComponetList.push(chartWidthPosition);
-	store.commit("editor/setComponent", newComponetList);
-	console.log(chart, "新增编辑器", chartWidthPosition);
+	store.commit("editor/addComponent", { ...chartWidthPosition, type: "chart" });
 };
 onMounted(() => {
 	getChartList();

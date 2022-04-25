@@ -4,7 +4,12 @@
 		:data-subfix="subfix"
 		:style="{ '--show': !subfix ? 'none' : 'inline-block' }"
 	>
-		<input v-bind="$attrs" :value="data" @change="emitChange" />
+		<input
+			v-bind="$attrs"
+			:value="data"
+			@change="emitChange"
+			@input="emitChange"
+		/>
 	</div>
 </template>
 <script lang="ts" setup>
@@ -21,7 +26,7 @@ const props = defineProps({
 	},
 });
 const emits = defineEmits<{
-	(e: "update:data"): void;
+	(e: "update:data", val: string | number): void;
 }>();
 const emitChange = (e: Event) => {
 	const el = e.target;

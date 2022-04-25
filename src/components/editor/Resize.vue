@@ -85,6 +85,7 @@ onMounted(() => {
 	background: rgba(255, 255, 255, 1);
 	padding: 5px;
 	backdrop-filter: blur(12px);
+	box-shadow: $shadow-shallow;
 	.ico {
 		width: 30px;
 		text-align: center;
