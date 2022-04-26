@@ -27,8 +27,8 @@ const insertFontToHeader = (list: FontFamily[]) => {
  */
 const getList = async () => {
 	const res = await getFontList();
-	if (res.data.code === 0) {
-		fontList.value = res.data.data.rows;
+	if (res.code === 0) {
+		fontList.value = res.data.rows;
 		insertFontToHeader(fontList.value);
 	}
 };

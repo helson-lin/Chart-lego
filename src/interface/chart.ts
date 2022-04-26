@@ -1,11 +1,11 @@
-import HttpRequest from "../lib/axios/index";
+import { HttpRequest } from "../lib/axios/request";
 /**
  * @description: 请求图表详情
  * @param: uid 图表id
  * @return: Promise
  */
 export const getChart = (uid: string) => {
-	return HttpRequest.request({
+	return HttpRequest({
 		url: `chart/queryOne?uid=${uid}`,
 		method: "GET",
 	});
@@ -17,7 +17,7 @@ export const getChart = (uid: string) => {
  * @return: Promise
  */
 export const getAllChart = () => {
-	return HttpRequest.request({
+	return HttpRequest<null, { rows: any[] }>({
 		url: `chart/list`,
 		method: "GET",
 	});
@@ -28,7 +28,7 @@ export const getAllChart = () => {
  * @return: Promise
  */
 export const addChart = (data: any) => {
-	return HttpRequest.request({
+	return HttpRequest({
 		url: "chart/add",
 		method: "POST",
 		data,

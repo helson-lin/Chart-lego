@@ -1,97 +1,71 @@
-import axios, { Axios, AxiosRequestConfig, AxiosRequestHeaders } from "axios";
-import config from "../../config/index";
-import Cookies from "js-cookie";
-interface KeyValueObjProps {
-	[key: string]: string;
-}
-interface ConfigProps {
-	baseUrl: string;
-	headers: AxiosRequestHeaders;
-}
-export interface ApiDataProps<T> {
+import axios, { AxiosResponse } from "axios";
+import type { AxiosInstance, AxiosRequestConfig } from "axios";
+import type { RequestConfig, RequestInterceptors } from "./types";
+interface CustomResponse<T> {
 	code: number;
-	data: T;
 	msg: string;
+	data: T | unknown;
 }
-export interface Reponse<T> {
-	status: number;
-	data: ApiDataProps<T>;
-}
-const baseUrl =
-	process.env.NODE_ENV === "development"
-		? config.baseUrl.dev
-		: config.baseUrl.pro;
-class HttpRequest {
-	private baseUrl: string;
-	private queue: { [key: string]: any };
-	constructor(baseUrl: string) {
-		this.baseUrl = baseUrl;
-		this.queue = {};
-	}
-	getInsideConfig(): ConfigProps {
-		const config = {
-			baseUrl: this.baseUrl,
-			headers: {
-				//
+
+class Request<T> {
+	// axios 实例
+	instance: AxiosInstance;
+	// 拦截器对象
+	interceptorsObj?: RequestInterceptors;
+
+	constructor(config: RequestConfig) {
+		this.instance = axios.create(config);
+		if (config.interceptors) this.interceptorsObj = config.interceptors;
+
+		this.instance.interceptors.request.use(
+			(res: AxiosRequestConfig) => {
+				console.log("全局请求拦截器");
+				return res;
 			},
-		};
-		return config;
-	}
-	destroy(url: string) {
-		delete this.queue[url];
-		if (!Object.keys(this.queue).length) {
-			// Spin.hide() 当前没有请求的url
-		}
-	}
-	interceptors(instance: Axios, url: string) {
-		// 请求拦截
-		instance.interceptors.request.use(
-			(config) => {
-				if (config.headers)
-					config.headers.Authorization = Cookies.get("fv_token") || "";
-				// 添加全局的loading...
-				if (!Object.keys(this.queue).length) {
-					// Spin.show() // 不建议开启，因为界面不友好
-				}
-				this.queue[url] = true;
-				return config;
-			},
-			(error) => {
-				return Promise.reject(error);
-			}
+			(err: unknown) => err
 		);
-		// 响应拦截
-		instance.interceptors.response.use(
+		// 使用实例拦截器
+		this.instance.interceptors.request.use(
+			this.interceptorsObj?.requestInterceptors,
+			this.interceptorsObj?.requestInterceptorsCatch
+		);
+		this.instance.interceptors.response.use(
+			this.interceptorsObj?.responseInterceptors,
+			this.interceptorsObj?.responseInterceptorsCatch
+		);
+
+		// 全局响应拦截器保证最后执行
+		this.instance.interceptors.response.use(
+			// 因为我们接口的数据都在res.data下，所以我们直接返回res.data
 			(res) => {
-				this.destroy(url);
-				const { data, status } = res;
-				if (status === 500) console.error("服务器错误");
-				return { data, status };
+				console.log("全局响应拦截器", res.status);
+				if (res.status === 500) console.warn("服务器错误");
+				return res.data;
 			},
-			(error) => {
-				this.destroy(url);
-				let errorInfo = error.response;
-				if (!errorInfo) {
-					const {
-						request: { statusText, status },
-						config,
-					} = JSON.parse(JSON.stringify(error));
-					errorInfo = {
-						statusText,
-						status,
-						request: { responseURL: config.url },
-					};
-				}
-				return Promise.reject(error);
-			}
+			(err: unknown) => err
 		);
 	}
-	request(options: AxiosRequestConfig) {
-		if (!options.url) console.warn("Axios： url can't be blank");
-		const instance = axios.create({ baseURL: this.baseUrl });
-		options = Object.assign(this.getInsideConfig(), options);
-		this.interceptors(instance, options.url || "");
-		return instance(options);
+	request<T>(config: RequestConfig): Promise<T> {
+		return new Promise((resolve, reject) => {
+			// 如果我们为单个请求设置拦截器，这里使用单个请求的拦截器
+			if (config.interceptors?.requestInterceptors) {
+				config = config.interceptors.requestInterceptors(config);
+			}
+			this.instance
+				.request<any, T>(config)
+				.then((res) => {
+					// 如果我们为单个响应设置拦截器，这里使用单个响应的拦截器
+					if (config.interceptors?.responseInterceptors) {
+						res = config.interceptors.responseInterceptors<T>(res);
+					}
+
+					resolve(res);
+				})
+				.catch((err: any) => {
+					reject(err);
+				});
+		});
 	}
 }
-export default new HttpRequest(baseUrl);
+
+export default Request;

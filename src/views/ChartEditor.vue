@@ -117,9 +117,9 @@ export default {
 		};
 		const getChartCode = async (uid: string) => {
 			const res = await getChart(uid);
-			if (res.data.code === 0) {
+			if (res.code === 0) {
 				// eslint-disable-next-line @typescript-eslint/camelcase
-				const { uid, name, style_option, api_option, handler } = res.data.data;
+				const { uid, name, style_option, api_option, handler } = res.data;
 				const data = {
 					uid: uid,
 					name,

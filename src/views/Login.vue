@@ -59,8 +59,9 @@ const submit = async () => {
 		message.info("请检查用户名和密码！");
 		return;
 	}
-	const res = await login<UserLogin>(username.value, password.value);
-	if (res.data.code === 0) {
+	const res = await login(username.value, password.value);
+	console.warn(res);
+	if (res.code === 0) {
 		message.success("登录成功！");
 		// const {user}
 		// 存在重定向URL:重定向

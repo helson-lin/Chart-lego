@@ -139,9 +139,9 @@ export default {
 			};
 			console.log(stringifyChartComponent(componentCopy as FvComponentBase[]));
 			const res = await addCanvas(postData);
-			if (res.data.code === 0) {
+			if (res.code === 0) {
 				message.success("新增视图成功！");
-				const uid = res.data.data.uid;
+				const uid = res.data.uid;
 				router.push({
 					path: `/canvas/${uid}`,
 				});

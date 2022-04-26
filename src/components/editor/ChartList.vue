@@ -45,9 +45,9 @@ const indicator = h(LoadingOutlined, {
  */
 const getChartList = async () => {
 	const res = await getAllChart();
-	if (res.data && res.data.code === 0) {
-		if (!res.data.data || res.data.data === undefined) return;
-		chartListData.value = res.data.data.rows.map((Item: ApiChartOption) =>
+	if (res.code === 0) {
+		if (!res.data || res.data === undefined) return;
+		chartListData.value = res.data.rows.map((Item: ApiChartOption) =>
 			formatterChartOption.formatterChartOption(Item)
 		);
 		loading.value = false;

@@ -41,8 +41,8 @@ const editorStyle = computed(() => {
 });
 const getCanvas = async (uid: string) => {
 	const res = await getCanvasById(uid);
-	if (res.data.code === 0) {
-		const { style, component, name } = res.data.data;
+	if (res.code === 0) {
+		const { style, component, name } = res.data;
 		const components = JSON.parse(component);
 		(componentList.value as unknown) = components.map((item: any) => {
 			const items = item;
