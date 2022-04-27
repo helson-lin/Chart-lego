@@ -62,7 +62,7 @@ const routes = [
 		},
 	},
 	{
-		path: "/chartCode",
+		path: "/chartCode/:uid",
 		name: "ChartCode",
 		component: CodeEditor,
 		meta: {

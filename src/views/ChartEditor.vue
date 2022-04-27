@@ -88,6 +88,7 @@ import {
 import { onMounted, ref } from "vue";
 import { useStore } from "vuex";
 import { getChart } from "@/interface/chart";
+import { useRoute } from "vue-router";
 export default {
 	components: {
 		Header,
@@ -99,8 +100,9 @@ export default {
 		SaveOutlined,
 	},
 	setup() {
-		const uid = ref("af1662dfbada6935775119edd6dfb2a5");
+		const uid = ref("");
 		const store = useStore();
+		const route = useRoute();
 		const runing = ref<boolean>(false);
 		function evil(fn: string) {
 			const Fn = Function;
@@ -138,7 +140,9 @@ export default {
 			runing.value = val;
 		};
 		onMounted(() => {
-			getChartCode(uid.value);
+			const routeUid = route.params.uid || "";
+			uid.value = routeUid as string;
+			getChartCode(routeUid as string);
 		});
 		return {
 			runCode,

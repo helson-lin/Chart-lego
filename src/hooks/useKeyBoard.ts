@@ -66,6 +66,7 @@ class Shortcuts {
 		return ctrlKey + shiftKey + altKey + keyName;
 	}
 	private keydown(e: KeyboardEvent) {
+		if (!e.key) return;
 		const keyName = this.transSpeicalKey(e);
 		const callbacks = this.keyboard[keyName];
 		if (callbacks) {
@@ -73,6 +74,7 @@ class Shortcuts {
 		}
 	}
 	private keyup(e: KeyboardEvent) {
+		if (!e.key) return;
 		const keyName = this.transSpeicalKey(e);
 		const callbacks = this.keyboard[keyName];
 		if (callbacks) {

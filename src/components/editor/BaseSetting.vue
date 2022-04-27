@@ -36,7 +36,7 @@
 							v-model:fileList="fileList"
 							name="file"
 							:multiple="false"
-							maxCount="1"
+							:maxCount="1"
 							:action="fileUploadUrl"
 							@change="handleChange"
 							@remove="remove"

@@ -25,7 +25,6 @@ class Chart {
 		this.isDeugger = isDeugger || false;
 		if (typeof renderFuc !== "function") this.throwError("渲染函数不是函数");
 		this.renderFuc = renderFuc;
-		this.log(`初始化Chart: ${JSON.stringify(initOptions)}`);
 		this.init();
 	}
 	async init() {
@@ -34,20 +33,18 @@ class Chart {
 		if (!el) this.throwError("当前图表uid不存在, 无法挂载");
 		this.log(`获取Dom: ${el}`);
 		this.$el = el;
-		this._options = await this.renderFuc.bind(this)();
-		console.log(this);
+		this._options = await this.renderFuc.bind(this, this.apiOption, "demo")();
 		this.render();
 	}
 	render() {
 		if (this.$el) {
 			this.vm = window.echarts.init(this.$el);
-			console.log(this.vm.setOption, this._options);
 			this._options && this.vm?.setOption(this._options, true);
 		}
 	}
 	async reRender() {
 		if (this.isDeugger) console.log("重新渲染CHART");
-		this._options = await this.renderFuc.bind(this)();
+		this._options = await this.renderFuc.bind(this, this.apiOption)();
 		if (this.isDeugger) console.log("重新渲染CHART-Options", this._options);
 		this._options && this.vm?.setOption(this._options, true);
 		if (this.isDeugger) console.log("重新渲染CHART-vm", this.vm);

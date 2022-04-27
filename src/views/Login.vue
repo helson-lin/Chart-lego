@@ -76,7 +76,7 @@ const submit = async () => {
 			router.push("/");
 		}
 	} else {
-		message.info(res.data.msg || "系统异常！");
+		message.info(res.msg || "系统异常！");
 	}
 };
 </script>

@@ -19,7 +19,6 @@ class Request<T> {
 
 		this.instance.interceptors.request.use(
 			(res: AxiosRequestConfig) => {
-				console.log("全局请求拦截器");
 				return res;
 			},
 			(err: unknown) => err
@@ -38,7 +37,6 @@ class Request<T> {
 		this.instance.interceptors.response.use(
 			// 因为我们接口的数据都在res.data下，所以我们直接返回res.data
 			(res) => {
-				console.log("全局响应拦截器", res.status);
 				if (res.status === 500) console.warn("服务器错误");
 				return res.data;
 			},
