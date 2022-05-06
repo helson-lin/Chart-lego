@@ -2,15 +2,14 @@
 	<div class="fv-time">{{ time }}</div>
 </template>
 <script lang="ts" setup>
-import { onUnmounted, ref, defineProps, withDefaults } from "vue";
-type TimeType = 0 | 1;
+import { onUnmounted, ref } from "vue";
 interface FvTimerProps {
 	value: number[];
 }
 const time = ref("");
-withDefaults(defineProps<FvTimerProps>(), {
-	value: [1, 1, 1, 1, 1, 1],
-});
+// withDefaults(defineProps<FvTimerProps>(), {
+// 	value: [1, 1, 1, 1, 1, 1],
+// });
 const getTime = () => {
 	const year = new Date().getFullYear();
 	const month = new Date().getMonth() + 1;

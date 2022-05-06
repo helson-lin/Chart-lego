@@ -25,7 +25,7 @@
 							<template #title>
 								<span>debug</span>
 							</template>
-							<a-button type="text" data-alt="debug">
+							<a-button type="text" data-alt="debug" @click="openDebug">
 								<template #icon>
 									<bug-outlined />
 								</template>
@@ -54,7 +54,7 @@
 					</div>
 					<div class="share">
 						<a-button type="primary" shape="round" :size="size">
-							保存
+							发布
 							<template #icon>
 								<save-outlined />
 							</template>
@@ -69,7 +69,8 @@
 				<div class="resize"></div>
 			</div>
 			<div class="editor-r">
-				<div :id="uid" style="width: 400px; height: 400px"></div>
+				<div :id="uid" style="width: 600px; height: 400px"></div>
+				<div class="log" id="logger"></div>
 			</div>
 		</div>
 	</div>
@@ -77,6 +78,7 @@
 <script lang="ts">
 import Header from "../components/common/Header.vue";
 import CodeEditor from "../components/editor/CodeEditor.vue";
+import eruda from "eruda";
 //<play-circle-outlined />
 import {
 	PlayCircleOutlined,
@@ -138,6 +140,14 @@ export default {
 		};
 		const runStatusChange = (val: boolean) => {
 			runing.value = val;
+		};
+		const openDebug = () => {
+			const el = document.getElementById("logger");
+			// eruda.init({
+			// 	container: el,
+			// 	tool: ["console", "elements"],
+			// 	useShadowDom: true,
+			// });
 		};
 		onMounted(() => {
 			const routeUid = route.params.uid || "";
@@ -203,7 +213,7 @@ export default {
 			padding: 20px;
 			box-sizing: border-box;
 			display: inline-flex;
-			flex-direction: row;
+			flex-direction: column;
 			align-items: center;
 			justify-content: center;
 			backdrop-filter: blur(20px);
@@ -211,6 +221,11 @@ export default {
 			div {
 				width: 100%;
 				height: 100%;
+			}
+			#logger {
+				width: 100%;
+				height: 350px;
+				background: #f2f2f2;
 			}
 		}
 	}

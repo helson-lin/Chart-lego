@@ -5,5 +5,5 @@ declare global {
 		$echarts: echarts;
 	}
 }
-declare module "colorpicker-v3";
-import "./types/editor";
+// declare module "colorpicker-v3";
+import "./editor";

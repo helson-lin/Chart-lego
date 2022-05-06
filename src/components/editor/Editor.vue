@@ -25,13 +25,13 @@
 				@click="chartClick($event, component.type)"
 			></component>
 		</div>
-		<ContextMenu
+		<!-- <ContextMenu
 			v-if="showContextMenu"
 			:style="{
 				left: contextMenuPos.offsetX + 'px',
 				top: contextMenuPos.offsetY + 'px',
 			}"
-		/>
+		/> -->
 	</div>
 </template>
 <script lang="ts" setup>
@@ -45,9 +45,9 @@ import {
 	ref,
 	h,
 } from "vue";
-import { notification } from "ant-design-vue";
+import { notification, message } from "ant-design-vue";
 import { SmileOutlined } from "@ant-design/icons-vue";
-import ContextMenu from "./ContextMenu.vue";
+// import ContextMenu from "./ContextMenu.vue";
 import Moveable from "moveable";
 import { useStore } from "vuex";
 import { DragNodeEvent } from "ant-design-vue/lib/vc-tree/interface";
@@ -349,11 +349,11 @@ const keyBoard = () => {
 		const editingEl = document.getElementById(id);
 		if (moveable && editingEl) {
 			moveable.target = editingEl;
-			notification.info({
-				message: "操作提示",
-				description: "您已复制了组件，可以拖拽布局",
-				icon: () => h(SmileOutlined, { style: "color: #108ee9" }),
-			});
+			// notification.info({
+			// 	message: "操作提示",
+			// 	description: "您已复制了组件，可以拖拽布局",
+			// 	icon: () => h(SmileOutlined, { style: "color: #108ee9" }),
+			// });
 		}
 	});
 	// 快速设置层级
@@ -368,7 +368,7 @@ const keyBoard = () => {
 		console.warn("提高层级");
 	});
 };
-const drop = (e: DropEvent) => {
+const drop = (e: DragEvent) => {
 	const el = e.target;
 	(el as HTMLElement).className = (el as HTMLElement).className.replace(
 		" drag-over",
@@ -392,7 +392,7 @@ const dragleave = (e: DragEvent) => {
 };
 const dragover = (e: DragEvent) => {
 	e.preventDefault();
-	console.log("dragover", e.target);
+	console.log("dragover", e.target, e);
 };
 onMounted(() => {
 	keyBoard();

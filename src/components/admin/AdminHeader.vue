@@ -1,29 +1,22 @@
 <template>
-	<div class="header">
+	<div class="admin-header">
 		<div class="logo" @click="backHome">
 			<img style="height: 50px" src="../../assets/image/logo1.png" alt="" />
 		</div>
-		<div class="h-flex">
-			<slot></slot>
-		</div>
-		<div class="avatar" v-if="showAvatar">
+		<div class="avatar">
 			<a-dropdown>
-				<a-avatar :src="user.avatar || 'https://joeschmoe.io/api/v1/random'">
+				<a-avatar :src="user.avatar">
 					<template #icon><UserOutlined /></template>
 				</a-avatar>
 				<template #overlay>
 					<a-menu>
-						<a-menu-item v-if="isLogin">
+						<a-menu-item>
 							<setting-outlined />
-							<span class="btn" style="margin-left: 10px">账号设置</span>
+							<span class="btn" style="margin-left: 10px">首页</span>
 						</a-menu-item>
-						<a-menu-item @click="logout" v-if="isLogin">
+						<a-menu-item @click="logout">
 							<logout-outlined />
 							<span class="btn" style="margin-left: 10px">退出账号</span>
-						</a-menu-item>
-						<a-menu-item @click="login" v-if="!isLogin">
-							<setting-outlined />
-							<span class="btn" style="margin-left: 10px">登录</span>
 						</a-menu-item>
 					</a-menu>
 				</template>
@@ -32,7 +25,7 @@
 	</div>
 </template>
 <script lang="ts" setup>
-import { computed, defineProps } from "vue";
+import { computed } from "vue";
 import {
 	UserOutlined,
 	LogoutOutlined,
@@ -43,12 +36,6 @@ import Cookies from "js-cookie";
 import { UserProps } from "@/store/user";
 import { useStore } from "vuex";
 const router = useRouter();
-defineProps({
-	showAvatar: {
-		type: Boolean,
-		default: true,
-	},
-});
 const store = useStore();
 const isLogin = computed<boolean>(() => {
 	const fvToken = Cookies.get("fv_token");
@@ -75,34 +62,21 @@ const logout = () => {
 };
 </script>
 <style lang="scss" scoped>
-.header {
+.admin-header {
 	width: 100%;
-	height: 50px;
+	display: flex;
 	padding: 0 20px;
 	box-sizing: border-box;
 	box-shadow: $shadow-shadow-dark;
-	background: #ffffff;
 	box-shadow: 0px 6px 20px 0px rgba(162, 181, 230, 0.16);
 	backdrop-filter: blur(12px);
 	display: flex;
 	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+	background: #fff;
 	.logo {
-		height: 50px;
 		cursor: pointer;
-	}
-	.h-flex {
-		flex: 1;
-		height: 100%;
-	}
-	.avatar {
-		margin-left: 20px;
-		display: flex;
-		align-items: center;
-		height: 100%;
-		cursor: pointer;
-		:deep() .btn {
-			margin-left: 20px !important;
-		}
 	}
 }
 </style>

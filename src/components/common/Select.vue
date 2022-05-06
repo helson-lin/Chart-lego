@@ -1,6 +1,5 @@
 <template>
 	<div class="fv-select">
-		<!-- Selected show 选中效果 -->
 		<div
 			:data-subfix="subfix"
 			:style="{ '--show': !subfix ? 'none' : 'inline-block' }"
@@ -9,7 +8,6 @@
 		>
 			{{ data || placeholder || "请选择" }}
 		</div>
-		<!-- Select list 选择列表 -->
 		<div class="select-list" v-if="toggleStatus">
 			<div
 				@click="choose(item[valueKey])"
@@ -32,7 +30,7 @@ interface SelectProps {
 	placeholder: string | null;
 	subfix: string | null;
 }
-const props = withDefaults(defineProps<SelectProps>(), {
+withDefaults(defineProps<SelectProps>(), {
 	data: null,
 	list: undefined,
 	valueKey: "value",

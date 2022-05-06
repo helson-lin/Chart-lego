@@ -83,6 +83,8 @@ import { stringifyChartComponent } from "../utils/utils";
 import Resize from "../components/editor/Resize.vue";
 import { onMounted, ref, watchEffect } from "vue";
 import { useStore } from "vuex";
+import toImage from "@/hooks/useHtml2Canvas";
+import { fileUpload } from "@/interface/file";
 import { ChartOptionsProps } from "@/types/chart";
 import { FvComponentBase } from "@/types/editor";
 import { useRoute, useRouter } from "vue-router";
@@ -121,35 +123,36 @@ export default {
 		const saveEditCanvas = async () => {
 			const editCanvas: EditorCavansProps = store.getters["editor/getEditor"];
 			const { uid, name, component, style } = editCanvas;
-			console.log("componet", component);
 			if (!component) return;
 			const componentCopy = lodash.cloneDeep(component);
-			// const componentWidthHandedLT = component.map((item) => {
-			// 	const { styleOption, apiOption } = item;
-			// 	const newstyleOption = lodash.cloneDeep(styleOption);
-			// 	return { ...item, styleOption: newstyleOption };
-			// });
-			console.log(componentCopy, "component");
-			// //这里的转换不可以使用JSON.stringify 回忽略函数
-			const postData = {
-				uid: uid,
-				name: canvasName.value,
-				component: stringifyChartComponent(componentCopy as FvComponentBase[]),
-				style: JSON.stringify(style),
-			};
-			console.log(stringifyChartComponent(componentCopy as FvComponentBase[]));
-			const res = await addCanvas(postData);
-			if (res.code === 0) {
-				message.success("新增视图成功！");
-				const uid = res.data.uid;
-				router.push({
-					path: `/canvas/${uid}`,
-				});
+			const file = await toImage();
+			if (file) {
+				const fileUplaodRes = await fileUpload(file);
+				if (fileUplaodRes.code === 0) {
+					const img = fileUplaodRes.data.url;
+					const postData = {
+						uid: uid,
+						name: canvasName.value,
+						component: stringifyChartComponent(
+							componentCopy as FvComponentBase[]
+						),
+						img: img,
+						style: JSON.stringify(style),
+					};
+					const res = await addCanvas(postData);
+					if (res.code === 0) {
+						message.success("新增视图成功！");
+						const uid = res.data.uid;
+						router.push({
+							path: `/canvas/${uid}`,
+						});
+					} else {
+						message.info(res.data.msg || "系统错误，请联系管理员！");
+					}
+				}
 			} else {
-				message.info(res.data.msg || "系统错误，请联系管理员！");
+				throw new Error("snapshoot generate failed");
 			}
-			// console.log("ed", postData);
-			// getLoction();
 		};
 		watchEffect(() => {
 			// uid已路由地址为主

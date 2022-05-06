@@ -181,14 +181,42 @@
 					</div>
 				</div>
 				<div class="option-item" v-if="editingComponent.value !== undefined">
-					<div class="option-label">装饰器值{{ editingComponent.type }}</div>
-					<div class="option-value picker">
+					<div class="option-label">装饰器值</div>
+					<div
+						class="option-value picker"
+						v-if="editingComponent.type === 'text'"
+					>
 						<Input
 							v-model:data="editingComponent.value"
 							type="textarea"
 							placeholder="请输入"
 							subfix="文本"
 						/>
+					</div>
+					<div
+						class="option-value upload"
+						v-if="editingComponent.type === 'image'"
+					>
+						<a-upload-dragger
+							name="file"
+							:multiple="false"
+							:maxCount="1"
+							:action="fileUploadUrl"
+							@change="handleImgUpload"
+							@remove="removeImgUpload"
+						>
+							<div class="upload-inline" v-if="!editingComponent.value">
+								<p class="ant-upload-drag-icon">
+									<inbox-outlined></inbox-outlined>
+								</p>
+								<p class="ant-upload-text">拖拽图片到此位置上传</p>
+							</div>
+							<img
+								style="width: 100%; height: 90px"
+								v-if="editingComponent.value"
+								:src="editingComponent.value"
+							/>
+						</a-upload-dragger>
 					</div>
 				</div>
 				<div
@@ -254,6 +282,7 @@
 <script lang="ts" setup>
 import { useStore } from "vuex";
 import { computed, onMounted, ref, watchEffect } from "vue";
+import { message } from "ant-design-vue";
 import { ColorPicker } from "vue3-colorpicker";
 import Switch from "../common/Switch.vue";
 import Input from "../common/Input.vue";
@@ -311,6 +340,18 @@ const handleChange = ({ file }) => {
 	if (file.status === "done") {
 		const url = file.response.data.url;
 		store.commit("editor/setStyle", { ...editorSetting.value, imgUrl: url });
+	}
+};
+const handleImgUpload = ({ file }) => {
+	if (file.status === "done") {
+		console.log(file.response);
+		if (file.response.code !== 0) {
+			console.warn(file.response.msg);
+			message.info(file.response.msg);
+		} else {
+			const url = file.response.data.url;
+			store.commit("editor/setComponentValue", url);
+		}
 	}
 };
 const change = (color: string) => {

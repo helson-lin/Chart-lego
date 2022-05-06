@@ -58,6 +58,7 @@ export interface DecoratorFactory {
 	font?: Font;
 	color?: string;
 	textAlign?: TextAlign;
+	extends: { [key: string]: string }; // 扩张
 }
 
 export interface ChartComponentExtends {

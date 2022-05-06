@@ -13,6 +13,9 @@ import Editor from "../views/Editor.vue";
 import Canvas from "../views/Canvas.vue";
 import CodeEditor from "../views/ChartEditor.vue";
 import Template from "../views/Template.vue";
+import Admin from "../views/admin/index.vue";
+import AdminIndex from "../views/admin/children/index.vue";
+import Menu from "../views/admin/children/menu.vue";
 import { generateRedirectUrl } from "../utils/utils";
 import Cookies from "js-cookie";
 const routes = [
@@ -69,6 +72,33 @@ const routes = [
 			title: "图表编辑",
 			requiresAuth: true,
 		},
+	},
+	{
+		path: "/admin",
+		name: "Admin",
+		component: Admin,
+		meta: {
+			title: "后台管理",
+			requiresAuth: true,
+		},
+		children: [
+			{
+				path: "/admin/",
+				component: AdminIndex,
+				meta: {
+					title: "后台管理-首页",
+					requiresAuth: true,
+				},
+			},
+			{
+				path: "/admin/menu",
+				component: Menu,
+				meta: {
+					title: "后台管理-菜单",
+					requiresAuth: true,
+				},
+			},
+		],
 	},
 ];
 const router = createRouter({

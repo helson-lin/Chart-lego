@@ -174,6 +174,13 @@ const editor: Module<EditorStoreProps, GloablDataProps> = {
 		setEditorStyleSize(state, size: number) {
 			state.style.resize = size;
 		},
+		setComponentValue(state, value: any) {
+			if (!state.components) return;
+			const items = state.components.filter(
+				(item) => item.uid === state.editingComponentId
+			);
+			if (items.length > 0) items[0].value = value;
+		},
 		/**
 		 * @description: 设置编辑器的自定义背景
 		 */

@@ -15,4 +15,5 @@ export default {
 			fontFamily: "微软雅黑",
 		},
 	},
+	extends: {},
 };

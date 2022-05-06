@@ -19,7 +19,7 @@ interface Props {
 	unCheckedTxt: string;
 	checked: boolean;
 }
-const props = defineProps<Props>();
+defineProps<Props>();
 const emits = defineEmits<{
 	(e: "change", val: boolean): void;
 }>();

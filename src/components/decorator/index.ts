@@ -31,14 +31,15 @@ export const getComponetsName = () => {
 		const name = path.dirname(key).slice(2); //返回文件名 不含后缀名
 		const defaultOption = await import(`${path.dirname(key)}/option`);
 		const { value, imgUrl, styleOption, type } = defaultOption.default;
-		componets.push({
+		const compoentneOption: DecoratorOptionProps = {
 			uid: uuidv4(),
 			name: name,
 			imgUrl,
 			type: type,
 			value: value as string | number | boolean,
 			styleOption: styleOption as DecoratorStyleOptions,
-		});
+		};
+		componets.push(compoentneOption);
 	});
 	return componets;
 };

@@ -12,16 +12,23 @@
 				</div>
 			</template>
 		</Header>
+		<div class="home-canvas">
+			<canvas-list :list="canvasList" />
+		</div>
 	</div>
 </template>
 <script lang="ts" setup>
 import Header from "../components/common/Header.vue";
+import CanvasList from "../components/home/CanvasList.vue";
 import { DesktopOutlined } from "@ant-design/icons-vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { v4 as uuidv4 } from "uuid";
+import { onMounted, ref } from "vue";
+import { getAllCanvas } from "@/interface/canvas";
 const store = useStore();
 const router = useRouter();
+const canvasList = ref([]);
 const routeEditor = () => {
 	const uid = uuidv4();
 	store.commit("editor/setEditorUid", uid);
@@ -29,6 +36,13 @@ const routeEditor = () => {
 		path: `/editor/${uid}`,
 	});
 };
+onMounted(async () => {
+	const res = await getAllCanvas(10, 1);
+	if (res.code === 0) {
+		canvasList.value = res.data.rows;
+		console.log(res.data.rows);
+	}
+});
 </script>
 <style lang="scss" scoped>
 .fv-home {

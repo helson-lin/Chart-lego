@@ -18,3 +18,11 @@ export const getCanvasById = (uid: string) => {
 		method: "GET",
 	});
 };
+
+export const getAllCanvas = (pageSize: number, pageNum: number) => {
+	return HttpRequest({
+		url: "/canvas/list",
+		method: "GET",
+		data: {},
+	});
+};

@@ -40,6 +40,7 @@
 </template>
 <script lang="ts" setup>
 import { ref } from "vue";
+import { useStore } from "vuex";
 import { useRouter, useRoute } from "vue-router";
 import { login } from "@/interface/user";
 import { message } from "ant-design-vue";
@@ -51,6 +52,7 @@ export interface UserLogin {
 }
 const router = useRouter();
 const route = useRoute();
+const store = useStore();
 const username = ref<string>("");
 const password = ref<string>("");
 const viewPasswd = ref(false);
@@ -59,25 +61,23 @@ const submit = async () => {
 		message.info("请检查用户名和密码！");
 		return;
 	}
-	const res = await login(username.value, password.value);
-	console.warn(res);
-	if (res.code === 0) {
-		message.success("登录成功！");
-		// const {user}
-		// 存在重定向URL:重定向
-		const redirectUrl = route.query.redirectUrl || "";
-		if (redirectUrl) {
-			const { pathname, query } = analysisRedirectUrl(redirectUrl as string);
-			router.push({
-				path: pathname,
-				query,
-			});
-		} else {
-			router.push("/");
-		}
-	} else {
-		message.info(res.msg || "系统异常！");
-	}
+	store
+		.dispatch("user/login", {
+			username: username.value,
+			password: password.value,
+		})
+		.then(() => {
+			const redirectUrl = route.query.redirectUrl || "";
+			if (redirectUrl) {
+				const { pathname, query } = analysisRedirectUrl(redirectUrl as string);
+				router.push({
+					path: pathname,
+					query,
+				});
+			} else {
+				router.push("/");
+			}
+		});
 };
 </script>
 <style lang="scss" scoped>

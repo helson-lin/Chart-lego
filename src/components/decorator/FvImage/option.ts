@@ -9,4 +9,5 @@ export default {
 		left: 0,
 		zIndex: 1,
 	},
+	extends: {},
 };

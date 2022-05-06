@@ -1,11 +1,12 @@
+type FunctionCallback = (val?: "keyup" | "keydown") => void;
 interface KeyboardItemProps {
 	key: string;
 	callbacks: FunctionCallback[];
 }
-type FunctionCallback = (val?: "keyup" | "keydown") => void;
 interface KeyboardListProps {
 	[key: string]: FunctionCallback[];
 }
+import lodash from "lodash";
 
 class Shortcuts {
 	private keyboard: KeyboardListProps = {};
@@ -65,12 +66,13 @@ class Shortcuts {
 		const altKey = e.altKey || e.metaKey ? "alt" : "";
 		return ctrlKey + shiftKey + altKey + keyName;
 	}
+	// debuce
 	private keydown(e: KeyboardEvent) {
 		if (!e.key) return;
 		const keyName = this.transSpeicalKey(e);
 		const callbacks = this.keyboard[keyName];
 		if (callbacks) {
-			callbacks.forEach((func) => func("keyup"));
+			callbacks.forEach((func) => func("keydown"));
 		}
 	}
 	private keyup(e: KeyboardEvent) {
@@ -82,8 +84,18 @@ class Shortcuts {
 		}
 	}
 	private listen() {
-		window.addEventListener("keydown", this.keydown.bind(this), false);
-		window.addEventListener("keyup", this.keyup.bind(this), false);
+		// lodash.debounce(this.keydown.bind(this), 100),
+		window.addEventListener(
+			"keydown",
+			lodash.throttle(this.keydown.bind(this), 1000),
+			false
+		);
+		// this.keyup.bind(this)
+		window.addEventListener(
+			"keyup",
+			lodash.throttle(this.keyup.bind(this), 1000),
+			false
+		);
 	}
 	register(key: string, callback: FunctionCallback) {
 		const isKey = this.keyboard[key] !== undefined;
